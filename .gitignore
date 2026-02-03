@@ -153,8 +153,12 @@ playwright_full_log.txt
 playwright_output.txt
 rule_submission_log.txt
 
-# Temporary exclusions until documentation/agent files are standardized
-docs/
+# Docs publication gate (curated only)
+docs/*
+!docs/README.md
+!docs/codemap.md
+
+# Local-only agent/session files
 CLAUDE.md
 claude.md
 STATUS.md
