@@ -1,31 +1,87 @@
-# Card Fraud Intelligence Portal Docs
+# Card Fraud Intelligence Portal Documentation
 
-React/Refine frontend for fraud analysts and governance workflows.
+React/Refine frontend used by analysts for review, triage, and governance workflows.
 
-## Documentation Standard
+## Audience
 
-- File names: lowercase kebab-case (for example `local-setup.md`).
-- Section folders: numbered lowercase (`01-setup` through `07-reference`).
-- Keep docs concise and executable for local development.
-- Do not publish TODO/archive/session notes.
+- New developers setting up this repository locally.
+- Coding agents that need deterministic, executable setup/test instructions.
 
-## Section Map
+## Quick Start
 
-- `01-setup/`: prerequisites, bootstrap, local environment setup.
-- `02-development/`: daily development workflow and conventions.
-- `03-api/`: API surface and contract references.
-- `04-testing/`: local test strategy and commands.
-- `05-deployment/`: local deployment approach and release notes.
-- `06-operations/`: runbooks, troubleshooting, observability.
-- `07-reference/`: glossary, decisions, and cross-repo references.
+```powershell
+pnpm install
+pnpm dev
+pnpm test:unit
+```
 
-## Quick Start Commands
+## Documentation Standards
 
-- `pnpm install`
-- `pnpm dev`
-- `pnpm test`
+- Keep published docs inside `docs/01-setup` through `docs/07-reference`.
+- Use lowercase kebab-case file names (for example `local-setup.md`).
+- Exceptions: `README.md`, `codemap.md`, and machine-generated contract files (for example `openapi.json`).
+- Do not publish TODO, session notes, or archive artifacts.
 
-## Published Files
+## Section Index
 
-- `docs/README.md`
-- `docs/codemap.md`
+### `01-setup` - Setup
+
+Prerequisites, first-run onboarding, and environment bootstrap.
+
+- _No published topic file yet; see section README._
+
+### `02-development` - Development
+
+Day-to-day workflows, coding conventions, and contributor practices.
+
+- _No published topic file yet; see section README._
+
+### `03-api` - API
+
+Contracts, schemas, endpoint examples, and integration notes.
+
+- `03-api/contracts.md`
+- `03-api/openapi/openapi-rule-management.json`
+- `03-api/openapi/openapi-transaction-management.json`
+- `03-api/overview.md`
+- `03-api/ui-backend-integration.md`
+
+### `04-testing` - Testing
+
+Test strategy, local commands, and validation checklists.
+
+- `04-testing/e2e.md`
+- `04-testing/overview.md`
+- `04-testing/unit.md`
+
+### `05-deployment` - Deployment
+
+Local runtime/deployment patterns and release readiness notes.
+
+- `05-deployment/ci-cd.md`
+- `05-deployment/docker.md`
+- `05-deployment/overview.md`
+- `05-deployment/platforms.md`
+
+### `06-operations` - Operations
+
+Runbooks, troubleshooting, security operations, and observability.
+
+- `06-operations/csp-nonce.md`
+- `06-operations/monitoring.md`
+- `06-operations/security.md`
+
+### `07-reference` - Reference
+
+Architecture decisions, glossary, and cross-repo references.
+
+- `07-reference/adr/000-template.md`
+- `07-reference/adr/001-auth-model.md`
+- `07-reference/adr/002-rule-versioning.md`
+- `07-reference/adr/003-analyst-workflow-architecture.md`
+- `07-reference/agents.md`
+
+## Core Index Files
+
+- `docs/README.md` (this index)
+- `docs/codemap.md` (developer/agent orientation map)

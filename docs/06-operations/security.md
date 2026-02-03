@@ -20,7 +20,7 @@ Configured in `nginx.conf`:
 
 ## CSP Migration
 
-- Guidance and helper scripts are documented in `docs/06-operations/CSP_NONCE.md`
+- Guidance and helper scripts are documented in `docs/06-operations/csp-nonce.md`
 - Current baseline still allows `style-src 'unsafe-inline'` in `nginx.conf`
 - Keep enforcement rollout aligned with CI CSP checks
 

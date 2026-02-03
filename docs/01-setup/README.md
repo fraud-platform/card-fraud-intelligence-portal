@@ -1,9 +1,12 @@
 # Setup
 
-Use this section for prerequisites and first-run setup of `card-fraud-intelligence-portal`.
+Prerequisites, first-run onboarding, and environment bootstrap.
 
-## Baseline Commands
+## Published Files
 
-- `pnpm install`
-- `pnpm dev`
-- `pnpm test`
+- _No published topic file yet._
+
+## Naming Rules
+
+- Use lowercase kebab-case for new topic docs.
+- Keep this section focused; move broad cross-cutting topics to `07-reference`.
