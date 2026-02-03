@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Fraud Intelligence Portal for rule authoring and transaction review" />
+
+    <!-- Security Headers (Note: Use HTTP headers in production for full security) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!--
+      Content Security Policy (CSP)
+      - Development: Allows localhost for API and Vite HMR
+      - Production: Override with stricter CSP via HTTP headers and per-request nonces
+
+      Note: frame-ancestors and X-Frame-Options only work via HTTP headers, not meta tags
+    -->
+    <!-- Per-request nonce can be injected by the server into this meta tag: name="csp-nonce" -->
+    <meta name="csp-nonce" content="" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'nonce-';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        font-src 'self' data:;
+        connect-src 'self' http://localhost:* https: ws://localhost:* wss:;
+        base-uri 'self';
+        form-action 'self';
+      "
+    />
+
+    <title>Fraud Intelligence Portal</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

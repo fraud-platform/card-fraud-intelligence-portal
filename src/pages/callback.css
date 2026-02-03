@@ -1,0 +1,20 @@
+.callback-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+.callback-muted-paragraph {
+  font-size: 12px;
+  color: #666;
+  margin-top: 16px;
+}
+.callback-alert-margin {
+  margin-top: 16px;
+}
+.callback-subtext {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}

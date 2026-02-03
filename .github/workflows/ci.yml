@@ -1,0 +1,284 @@
+# =============================================================================
+# Card Fraud Intelligence Portal - CI Pipeline
+# =============================================================================
+# This workflow runs on every push and pull request to the main branch.
+# It enforces code quality gates before allowing code to be merged.
+#
+# Quality Gates:
+# - pnpm install (dependency installation)
+# - pnpm lint (ESLint - fail on errors)
+# - pnpm type-check (TypeScript compilation check)
+# - pnpm test (unit/integration tests)
+# - pnpm test:coverage (enforce 80% threshold)
+# - pnpm build (production build verification with Doppler)
+#
+# Required GitHub Secrets:
+# - DOPPLER_TOKEN_TEST: Doppler service token for test config (for build/E2E)
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same branch and workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Quality Gates: Lint, Type Check, Unit Tests
+  # ---------------------------------------------------------------------------
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Doppler secrets (main branch only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if [ -z "${{ secrets.DOPPLER_TOKEN_TEST }}" ]; then echo "Missing secret DOPPLER_TOKEN_TEST. Add it to repo secrets." && exit 1; fi
+          if [ -z "${{ secrets.DOPPLER_TOKEN_PROD }}" ]; then echo "Missing secret DOPPLER_TOKEN_PROD. Add it to repo secrets." && exit 1; fi
+
+      - name: Generate ESLint report (JSON)
+        run: pnpm exec eslint . --ext ts,tsx --format json -o eslint-report.json || true
+
+      - name: Upload ESLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: eslint-report.json
+
+      - name: Lint (ESLint)
+        run: pnpm ci:lint
+
+      - name: Type check (TypeScript)
+        run: pnpm type-check
+
+      - name: Run tests
+        run: pnpm test -- --run
+
+      - name: Generate coverage report
+        run: pnpm test:coverage -- --run
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # ---------------------------------------------------------------------------
+  # Build: Production build with Doppler secrets
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: quality-gates
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Build for production
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_TEST }}
+        run: |
+          if [ -n "$DOPPLER_TOKEN" ]; then
+            echo "Building with Doppler secrets..."
+            doppler run -- pnpm build
+          else
+            echo "No Doppler token found, building with defaults..."
+            pnpm build
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+      - name: CSP Report-Only check (required)
+        if: always()
+        env:
+          CSP_URL: 'http://localhost:8080/'
+        run: |
+          echo "Starting CSP dev server in background..."
+          pnpm run csp:serve -- --root ./dist --port 8080 &
+          SERVER_PID=$!
+          # Wait for server to be ready
+          for i in {1..20}; do
+            if curl -sSf http://localhost:8080/ >/dev/null 2>&1; then
+              echo "Server ready";
+              break;
+            fi
+            sleep 1
+          done
+          pnpm run csp:test
+          echo "Stopping CSP dev server"
+          kill $SERVER_PID || true
+
+      - name: CSP Enforce check (optional, enable with CSP_ENFORCE=true)
+        if: always()
+        env:
+          CSP_URL: 'http://localhost:8080/'
+        run: |
+          if [ "${CSP_ENFORCE:-false}" = "true" ]; then
+            echo "Running CSP enforce checks..."
+            pnpm run csp:enforce
+          else
+            echo "CSP_ENFORCE not enabled; skipping enforcement check. Set CSP_ENFORCE=true to turn on enforcement.";
+          fi
+
+  # ---------------------------------------------------------------------------
+  # E2E Tests: Playwright with Doppler secrets
+  # ---------------------------------------------------------------------------
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: quality-gates
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Run E2E tests
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_TEST }}
+        run: |
+          if [ -n "$DOPPLER_TOKEN" ]; then
+            echo "Running E2E tests with Doppler secrets..."
+            doppler run -- pnpm test:e2e
+          else
+            echo "No Doppler token found, running E2E tests with defaults..."
+            pnpm test:e2e
+          fi
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Docker Build: Verify Dockerfile builds successfully
+  # ---------------------------------------------------------------------------
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Build Docker image
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_TEST }}
+        run: |
+          if [ -n "$DOPPLER_TOKEN" ]; then
+            echo "Building Docker image with Doppler secrets..."
+            eval $(doppler secrets download --no-file --format=docker)
+
+            docker buildx build \
+              --build-arg VITE_API_URL="${VITE_API_URL}" \
+              --build-arg VITE_AUTH0_DOMAIN="${VITE_AUTH0_DOMAIN}" \
+              --build-arg VITE_AUTH0_CLIENT_ID="${VITE_AUTH0_CLIENT_ID}" \
+              --build-arg VITE_AUTH0_AUDIENCE="${VITE_AUTH0_AUDIENCE}" \
+              --build-arg VITE_AUTH0_REDIRECT_URI="${VITE_AUTH0_REDIRECT_URI}" \
+              --build-arg VITE_AUTH0_ROLE_CLAIM="${VITE_AUTH0_ROLE_CLAIM}" \
+              --build-arg VITE_DISABLE_MOCKS="${VITE_DISABLE_MOCKS}" \
+              --tag fraud-portal:ci-test \
+              .
+          else
+            echo "No Doppler token found, building with defaults..."
+            docker buildx build --tag fraud-portal:ci-test .
+          fi
+
+      - name: Verify Docker image
+        run: |
+          echo "Docker image built successfully"
+          docker images fraud-portal:ci-test

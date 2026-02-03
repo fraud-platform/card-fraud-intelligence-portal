@@ -1,0 +1,28 @@
+.cases-container {
+  width: 100%;
+}
+.cases-actions-space {
+  justify-content: space-between;
+  width: 100%;
+  display: flex;
+}
+.cases-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.folder-icon {
+  margin-right: 8px;
+}
+.filter-space {
+  margin-bottom: 16px;
+}
+.mono-text {
+  font-family: monospace;
+}
+.form-max-width {
+  max-width: 600px;
+}
+.activity-meta {
+  font-size: 12px;
+}

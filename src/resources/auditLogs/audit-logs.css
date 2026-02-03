@@ -1,0 +1,13 @@
+.audit-filter-form {
+  margin-bottom: 12px;
+}
+.audit-card-spaced {
+  margin-top: 12px;
+}
+.code-ellipsis {
+  max-width: 100px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,11 @@
+/* Case show styles */
+.case-show-root {
+  width: 100%;
+}
+.centered-spin {
+  text-align: center;
+  padding: 50px;
+}
+.tx-id-text {
+  font-size: 12px;
+}

@@ -1,0 +1,9 @@
+.full-width {
+  width: 100%;
+}
+.title-no-margin {
+  margin: 0;
+}
+.status-live-icon {
+  color: #52c41a;
+}

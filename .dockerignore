@@ -1,0 +1,82 @@
+# =============================================================================
+# Docker Build Context Exclusions
+# =============================================================================
+# Exclude files not needed in the Docker build to speed up builds and
+# reduce image size. Secrets should come from Doppler, not .env files.
+# =============================================================================
+
+# Dependencies (installed fresh in container)
+node_modules/
+
+# Build outputs (rebuilt in container)
+dist/
+build/
+
+# Git
+.git/
+.gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment files (secrets come from Doppler)
+.env
+.env.*
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Development files
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Documentation (not needed in production)
+docs/
+*.md
+!README.md
+
+# E2E tests (not needed in production image)
+e2e/
+
+# Claude/AI files
+.claude/
+CLAUDE.md
+
+# MSW (not needed in production)
+public/mockServiceWorker.js
+
+# OS files
+.DS_Store
+Thumbs.db
+nul
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Husky hooks (not needed in container)
+.husky/
+
+# Scripts (development only)
+scripts/
+
+# Config files not needed at runtime
+.editorconfig
+.eslintrc*
+eslint.config.js
+.prettierrc*
+.prettierignore
+vitest.config.ts
+playwright.config.ts

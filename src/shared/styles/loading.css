@@ -1,0 +1,12 @@
+.route-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.default-route-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}

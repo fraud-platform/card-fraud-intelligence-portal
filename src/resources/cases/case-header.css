@@ -1,0 +1,16 @@
+.case-header-root {
+  width: 100%;
+}
+.case-header-row {
+  justify-content: space-between;
+  width: 100%;
+}
+.case-header-icon {
+  font-size: 24px;
+}
+.case-header-title {
+  margin: 0;
+}
+.case-header-paragraph {
+  margin: 0;
+}

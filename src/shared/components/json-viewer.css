@@ -1,0 +1,14 @@
+.jsonviewer-max-400 {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.jsonviewer-max-500 {
+  max-height: 500px;
+  overflow-y: auto;
+}
+.jsonviewer-paragraph {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 12px;
+}

@@ -1,0 +1,37 @@
+.metrics-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+.stat-suffix {
+  font-size: 12px;
+}
+.metrics-row {
+  margin-top: 16px;
+}
+.progress-center {
+  text-align: center;
+}
+.progress-caption {
+  margin-top: 8px;
+}
+.reason-tag {
+  font-size: 11px;
+}
+.card-spaced {
+  margin-top: 16px;
+}
+.small-code {
+  font-size: 11px;
+}
+
+/* Statistic color classes for decision-driven styles */
+.stat-approve {
+  color: #52c41a;
+}
+.stat-decline {
+  color: #ff4d4f;
+}
+.stat-MONITORING {
+  color: #fa8c16;
+}

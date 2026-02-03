@@ -1,0 +1,104 @@
+/* Layout component styles */
+.app-sider {
+  background: #001529;
+  border-right: none;
+}
+.sider-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sider-header.collapsed {
+  justify-content: center;
+  padding: 0;
+}
+.brand-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: #1677ff;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.brand-text {
+  color: #fff;
+  margin-left: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.sider-menu {
+  border-right: 0;
+  font-size: 13px;
+}
+.app-header {
+  padding: 0 16px;
+  height: 48px;
+  line-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff; /* default, theme may override via CSS variables */
+  border-bottom: 1px solid #f0f0f0; /* default */
+}
+.header-toggle {
+  font-size: 16px;
+}
+.user-button {
+  height: 36px;
+}
+.header-avatar {
+  width: 24px;
+  height: 24px;
+  background: #1677ff; /* header avatar default */
+}
+.avatar-primary {
+  background: #1677ff;
+}
+.role-label {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.role-label-checker {
+  background: #f6ffed;
+  color: #52c41a;
+}
+.role-label-user {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+.chevron-icon {
+  font-size: 10px;
+  color: #999;
+}
+.user-name {
+  font-size: 13px;
+  max-width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-content {
+  padding: 16px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 48px);
+  overflow: auto;
+}
+.app-root {
+  min-height: 100vh;
+}
+.user-info-block {
+  padding: 4px 0;
+}
+.user-info-name {
+  display: block;
+}
+.user-info-email {
+  font-size: 11px;
+}

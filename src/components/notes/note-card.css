@@ -1,0 +1,23 @@
+.note-card-root {
+  margin-bottom: 8px;
+}
+.note-card-content {
+  width: 100%;
+}
+.note-lock-icon {
+  color: #faad14;
+}
+.note-system-text {
+  font-size: 11px;
+}
+.note-paragraph {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.note-meta {
+  font-size: 11px;
+  color: #8c8c8c;
+}
+.note-meta-text {
+  font-size: 11px;
+}

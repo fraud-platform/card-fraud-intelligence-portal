@@ -1,0 +1,40 @@
+/* Header component styles */
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 16px;
+  height: 100%;
+  background: #fff; /* default */
+  border-bottom: 1px solid #f0f0f0;
+}
+.header-user-text {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.header-role-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.header-role-badge-admin {
+  background: #ffccc7;
+  color: #a8071a;
+}
+.header-role-badge-default {
+  background: #f0f0f0;
+  color: #595959;
+}
+.header-checkspace {
+  width: 16px;
+  display: inline-block;
+}
+.header-avatar {
+  background: #1677ff;
+}
+.chevron-icon {
+  font-size: 10px;
+  color: #999;
+}

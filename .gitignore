@@ -1,0 +1,162 @@
+# ============================================
+# Logs
+# ============================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules
+.pnp
+.pnp.js
+
+# ============================================
+# Build outputs
+# ============================================
+dist
+dist-ssr
+build
+out
+*.local
+
+# ============================================
+# Secrets (managed by Doppler, NEVER COMMIT)
+# ============================================
+.env
+.env.*
+
+# ============================================
+# Testing
+# ============================================
+coverage
+*.lcov
+.nyc_output
+test-results/
+playwright-report/
+playwright/.cache/
+playwright-video/
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+
+# ============================================
+# Editor directories and files
+# ============================================
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# ============================================
+# OS files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+nul
+
+# ============================================
+# Package manager files
+# ============================================
+package-lock.json
+yarn.lock
+# Uncomment if you don't want to commit pnpm-lock.yaml (recommended to commit for reproducibility)
+# pnpm-lock.yaml
+
+# ============================================
+# Temporary files
+# ============================================
+*.tmp
+*.temp
+.cache
+.parcel-cache
+.vite
+.turbo
+
+# ============================================
+# Linting / Formatting
+# ============================================
+.eslintcache
+.prettierignore
+.stylelintcache
+
+# ============================================
+# Misc project-specific
+# ============================================
+# Archived documentation (kept for reference)
+docs/archive/
+
+# Sentry
+.sentryclirc
+
+# SSL certificates
+*.pem
+
+# Doppler
+.doppler/
+
+# ============================================
+# CI/CD
+# ============================================
+# GitHub Actions (runners local cache)
+.github/workflows/cache/
+
+# Choreo
+.choreo/
+
+# Docker
+*.tar
+*.tar.gz
+docker-compose.override.yml
+
+# ============================================
+# AI Assistants
+# ============================================
+.claude/
+.claudeignore
+.gemini/
+.antigravity/
+.agent/
+CLAUDE.md
+
+# ============================================
+# Generated files
+# ============================================
+vite.config.d.ts
+coverage_output.txt
+E2E_FINAL_SUMMARY.md
+e2e_full_results.txt
+eslint-report.json
+lint-report.json
+playwright_full_log.txt
+playwright_output.txt
+rule_submission_log.txt
+
+# Temporary exclusions until documentation/agent files are standardized
+docs/
+CLAUDE.md
+claude.md
+STATUS.md
+status.md
+SESSION_HANDOFF.md

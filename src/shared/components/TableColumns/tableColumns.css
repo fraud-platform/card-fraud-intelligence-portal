@@ -1,0 +1,8 @@
+/* Table columns styles */
+.code-ellipsis {
+  max-width: 100px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

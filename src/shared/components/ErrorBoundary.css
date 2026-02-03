@@ -1,0 +1,14 @@
+.error-card {
+  margin: 20px auto;
+  max-width: 800px;
+}
+.error-space {
+  width: 100%;
+}
+.error-code {
+  white-space: pre-wrap;
+}
+.error-stack {
+  white-space: pre-wrap;
+  font-size: 11px;
+}

@@ -1,0 +1,57 @@
+/* Notes component styles */
+.note-legend {
+  margin-bottom: 8px;
+}
+.note-legend-text {
+  font-size: 12px;
+}
+.note-legend-item {
+  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+}
+.note-type-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+.note-private-text {
+  font-size: 11px;
+}
+
+/* Swatch color mappings (avoid inline styles for CSP enforcement) */
+.note-swatch-default {
+  background-color: #d9d9d9;
+}
+.note-swatch-blue {
+  background-color: #1890ff;
+}
+.note-swatch-cyan {
+  background-color: #13c2c2;
+}
+.note-swatch-purple {
+  background-color: #722ed1;
+}
+.note-swatch-geekblue {
+  background-color: #2f54eb;
+}
+.note-swatch-red {
+  background-color: #ff4d4f;
+}
+.note-swatch-green {
+  background-color: #52c41a;
+}
+.note-swatch-orange {
+  background-color: #fa8c16;
+}
+.note-swatch-lime {
+  background-color: #a0d911;
+}
+.note-swatch-volcano {
+  background-color: #fa541c;
+}
+.note-swatch-gold {
+  background-color: #faad14;
+}

@@ -1,0 +1,16 @@
+.centered-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+  align-items: center;
+  min-height: 100vh;
+}
+.small-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.full-width {
+  width: 100%;
+}

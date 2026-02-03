@@ -1,0 +1,49 @@
+.condition-card {
+  margin-top: 12px;
+}
+.condition-card.error-border {
+  border-color: #ff4d4f;
+}
+.control-space {
+  margin-bottom: 8px;
+}
+.error-icon {
+  color: #ff4d4f;
+}
+.condition-row {
+  width: 100%;
+}
+.select-w-120 {
+  width: 120px;
+}
+.value-min-width-220 {
+  min-width: 220px;
+}
+.value-min-width-160 {
+  min-width: 160px;
+}
+.full-width {
+  width: 100%;
+}
+.value-help-text {
+  font-size: 12px;
+}
+.error-list {
+  margin: 0;
+  padding-left: 20px;
+}
+.select-min-width-240 {
+  min-width: 240px;
+}
+.select-w-160 {
+  width: 160px;
+}
+.alert-spaced {
+  margin-bottom: 12px;
+}
+.paragraph-no-top {
+  margin-top: 0;
+}
+.divider-spaced {
+  margin: 12px 0;
+}
