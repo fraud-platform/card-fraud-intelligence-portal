@@ -1,23 +1,31 @@
 # Code Map
 
-## Core Layout
+## Repository Purpose
 
-- `src/app/`: app shell providers (auth, data provider, access control).
-- `src/resources/`: Refine resource pages (`rules`, `ruleFields`, `ruleSets`, `transactions`, etc.).
-- `src/components/`: reusable UI components.
-- `src/hooks/`: domain-specific hooks.
-- `src/shared/`: shared utilities, styles, compatibility helpers.
-- `src/mocks/`: MSW handlers and fixture data for local tests.
-- `e2e/`: Playwright tests.
+React/Refine frontend for fraud analysts and governance workflows.
 
-## Key Commands
+## Primary Areas
+
+- `app/` or `src/`: service or application implementation.
+- `tests/` or `e2e/`: automated validation.
+- `scripts/` or `cli/`: local developer tooling.
+- `docs/`: curated documentation index and section guides.
+
+## Local Commands
 
 - `pnpm install`
 - `pnpm dev`
 - `pnpm test`
+
+## Test Commands
+
+- `pnpm test`
 - `pnpm e2e`
-- `pnpm build`
 
-## Integration Role
+## API Note
 
-Frontend portal for fraud analysts; integrates with rule-management and transaction-management APIs.
+Frontend integrates with rule-management and transaction-management APIs.
+
+## Deployment Note
+
+Local deployment runs with Vite dev server or Docker image via platform compose.
