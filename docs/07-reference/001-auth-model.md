@@ -20,5 +20,5 @@ The UI supports Auth0 in production and a lightweight local session token fallba
 - Requires robust guardrails to prevent local auth paths in production.
 
 ## Links
-- ../AUTH_MODEL.md
+- ../07-reference/auth-model.md
 - ../00-getting-started/setup.md

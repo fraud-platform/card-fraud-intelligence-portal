@@ -2,15 +2,17 @@
 
 ## Repository Purpose
 
-React/Refine frontend used by analysts for review, triage, and governance workflows.
+React/Refine frontend for fraud analysts and governance workflows.
 
-## Key Paths
+## Documentation Layout
 
-- `src/`: Application UI, resources, routes, and data provider integration.
-- `e2e/`: Playwright tests and fixtures for end-to-end user flows.
-- `scripts/`: Frontend helpers (CSP checks and local utilities).
-- `public/`: Static assets served by Vite.
-- `docs/`: Curated onboarding and operational documentation.
+- `01-setup/`: Setup
+- `02-development/`: Development
+- `03-api/`: API
+- `04-testing/`: Testing
+- `05-deployment/`: Deployment
+- `06-operations/`: Operations
+- `07-reference/`: Reference
 
 ## Local Commands
 
@@ -18,16 +20,7 @@ React/Refine frontend used by analysts for review, triage, and governance workfl
 - `pnpm dev`
 - `pnpm test:unit`
 
-## Local Test Commands
+## Platform Modes
 
-- `pnpm test:unit`
-- `pnpm test:e2e`
-
-## API Note
-
-Frontend integrates with rule-management and transaction-management APIs.
-
-## Platform Integration
-
-- Standalone mode: run this repository using its own local commands and Doppler project config.
-- Consolidated mode: run this repository through `card-fraud-platform` compose stack for cross-service validation.
+- Standalone mode: run this repository with its own local commands and Doppler config.
+- Consolidated mode: run via `card-fraud-platform` for cross-service local validation.

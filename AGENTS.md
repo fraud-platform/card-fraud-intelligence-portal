@@ -74,7 +74,7 @@ pnpm test:e2e
 When behavior, routes, scripts, or architecture changes:
 
 1. Update impacted docs in `docs/` in the same change.
-2. Keep `README.md`, `docs/README.md`, and `docs/STATUS.md` aligned.
+2. Keep `README.md`, `docs/README.md`, and `docs/README.md` aligned.
 3. Keep links valid (no references to missing files).
 4. Avoid stale hardcoded counts when possible; prefer "last verified" entries.
 

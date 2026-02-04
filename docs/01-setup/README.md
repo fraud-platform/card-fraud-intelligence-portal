@@ -4,9 +4,12 @@ Prerequisites, first-run onboarding, and environment bootstrap.
 
 ## Published Files
 
-- _No published topic file yet._
+- `new-user-setup.md`
+- `overview.md`
+- `setup.md`
+- `verification.md`
 
 ## Naming Rules
 
 - Use lowercase kebab-case for new topic docs.
-- Keep this section focused; move broad cross-cutting topics to `07-reference`.
+- Keep each section focused on the section purpose.

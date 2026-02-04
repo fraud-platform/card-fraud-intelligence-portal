@@ -2,7 +2,7 @@
 
 ## Authentication and Authorization
 
-- Auth model and roles: `docs/AUTH_MODEL.md`
+- Auth model and roles: `docs/07-reference/auth-model.md`
 - Frontend providers:
   - `src/app/authProvider.ts`
   - `src/app/accessControlProvider.ts`

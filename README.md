@@ -26,12 +26,10 @@ pnpm build
 ## Documentation
 
 - Docs hub: `docs/README.md`
-- Setup: `docs/00-getting-started/setup.md`
-- Architecture: `docs/01-development/architecture.md`
+- Setup: `docs/01-setup/setup.md`
+- Architecture: `docs/02-development/architecture.md`
 - API: `docs/03-api/overview.md`
 - Testing: `docs/04-testing/overview.md`
 - Deployment: `docs/05-deployment/overview.md`
 - Operations: `docs/06-operations/monitoring.md`
-- Status: `docs/STATUS.md`
-- TODO: `docs/TODO.md`
 - Agent guidance: `AGENTS.md`
