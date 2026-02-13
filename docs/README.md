@@ -1,96 +1,65 @@
 # Card Fraud Intelligence Portal Documentation
 
-React/Refine frontend for fraud analysts and governance workflows.
+This is the canonical documentation set for the UI repository.
 
-## Quick Start
+Last verified: February 13, 2026.
 
-```powershell
-pnpm install
-pnpm dev
-pnpm test:unit
-```
+## Documentation Model
 
-## Documentation Standards
+The docs are intentionally structured:
 
-- Keep published docs inside `docs/01-setup` through `docs/07-reference`.
-- Use lowercase kebab-case file names for topic docs.
-- Exceptions: `README.md`, `codemap.md`, and generated contract artifacts (for example `openapi.json`).
-- Do not keep TODO/archive/status/session planning docs in tracked documentation.
+- One authoritative `README.md` per section (`01` to `07`)
+- Linked deep-dive guides only where they add unique implementation detail
+- One repository-wide code map: `docs/codemap.md`
+- Generated API contracts under `docs/03-api/` (`openapi-*.json`)
 
-## Section Index
+This model avoids unlinked setup/how-to fragments while preserving high-value deep references.
 
-### `01-setup` - Setup
+## Sections
 
-Prerequisites, first-run onboarding, and environment bootstrap.
+| Section          | Purpose                                                     | Canonical file                  |
+| ---------------- | ----------------------------------------------------------- | ------------------------------- |
+| `01-setup`       | Local bootstrap, prerequisites, verification, CORS          | `docs/01-setup/README.md`       |
+| `02-development` | Architecture, folder ownership, feature delivery patterns   | `docs/02-development/README.md` |
+| `03-api`         | UI to backend API integration, contracts, endpoint workflow | `docs/03-api/README.md`         |
+| `04-testing`     | Unit/E2E strategy, quality gates, skip policy               | `docs/04-testing/README.md`     |
+| `05-deployment`  | Build, container/runtime expectations, release checklist    | `docs/05-deployment/README.md`  |
+| `06-operations`  | Incident triage, runbooks, symptom-based troubleshooting    | `docs/06-operations/README.md`  |
+| `07-reference`   | Stable invariants, roles, routes, ports, glossary           | `docs/07-reference/README.md`   |
 
-- `01-setup/new-user-setup.md`
-- `01-setup/overview.md`
-- `01-setup/setup.md`
-- `01-setup/verification.md`
+## Deep-Dive Guides
 
-### `02-development` - Development
-
-Day-to-day workflows, architecture notes, and contributor practices.
-
-- `02-development/architecture.md`
-- `02-development/patterns.md`
-- `02-development/resource-analyst-ia-ux.md`
-- `02-development/resource-analyst-workflow.md`
-- `02-development/resource-field-registry.md`
-- `02-development/resource-overview.md`
-- `02-development/resource-rule-management.md`
-- `02-development/resource-transaction-management.md`
-- `02-development/workflow.md`
-
-### `03-api` - API
-
-Contracts, schemas, endpoint references, and integration notes.
-
-- `03-api/contracts.md`
-- `03-api/openapi-rule-management.json`
-- `03-api/openapi-transaction-management.json`
-- `03-api/overview.md`
-- `03-api/ui-backend-integration.md`
-
-### `04-testing` - Testing
-
-Test strategy, local commands, and validation playbooks.
-
-- `04-testing/e2e.md`
-- `04-testing/overview.md`
-- `04-testing/unit.md`
-
-### `05-deployment` - Deployment
-
-Local runtime/deployment patterns and release-readiness guidance.
-
-- `05-deployment/ci-cd.md`
-- `05-deployment/ci-overview.md`
-- `05-deployment/docker.md`
-- `05-deployment/overview.md`
-- `05-deployment/platforms.md`
-
-### `06-operations` - Operations
-
-Runbooks, observability, troubleshooting, and security operations.
-
-- `06-operations/csp-nonce.md`
-- `06-operations/monitoring.md`
-- `06-operations/security.md`
-
-### `07-reference` - Reference
-
-ADRs, glossary, and cross-repo reference material.
-
-- `07-reference/000-template.md`
-- `07-reference/001-auth-model.md`
-- `07-reference/002-rule-versioning.md`
-- `07-reference/003-analyst-workflow-architecture.md`
-- `07-reference/agents-guide.md`
-- `07-reference/auth-model.md`
-- `07-reference/rule-validation-loop.md`
+- Development architecture: `docs/02-development/architecture.md`
+- Development patterns: `docs/02-development/patterns.md`
+- Development workflow: `docs/02-development/workflow.md`
+- Deployment CI setup: `docs/05-deployment/ci-overview.md`
+- Deployment Docker notes: `docs/05-deployment/docker.md`
+- Operations monitoring: `docs/06-operations/monitoring.md`
+- Operations security: `docs/06-operations/security.md`
+- Operations CSP nonce runbook: `docs/06-operations/csp-nonce.md`
+- Reference auth model: `docs/07-reference/auth-model.md`
+- Reference rule validation spec: `docs/07-reference/rule-validation-loop.md`
+- Reference rule versioning decision: `docs/07-reference/rule-versioning.md`
 
 ## Core Index Files
 
-- `docs/README.md`
-- `docs/codemap.md`
+- Docs index: `docs/README.md`
+- Repository code map: `docs/codemap.md`
+- Root project overview: `README.md`
+- Agent contract: `AGENTS.md`
+
+## Publishing Rules
+
+- Keep docs in `docs/01-setup` through `docs/07-reference`.
+- Use lowercase kebab-case for non-special docs.
+- Allowed special names: `README.md`, `codemap.md`, generated contract files.
+- Do not commit docs/planning artifacts named `todo`, `status`, `archive`, or session notes.
+
+## Standard Local Validation
+
+```powershell
+pnpm lint
+pnpm type-check
+pnpm test:unit
+pnpm test:e2e -- --project=chromium
+```

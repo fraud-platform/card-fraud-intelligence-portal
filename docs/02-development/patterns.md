@@ -161,20 +161,23 @@ export const useReview = (transactionId: string) => {
   const { mutate } = useUpdate();
   const invalidate = useInvalidate();
 
-  const updateStatus = useCallback((status: TransactionStatus) => {
-    mutate(
-      {
-        resource: "reviews",
-        id: transactionId,
-        values: { status },
-      },
-      {
-        onSuccess: () => {
-          invalidate({ resource: "reviews" });
+  const updateStatus = useCallback(
+    (status: TransactionStatus) => {
+      mutate(
+        {
+          resource: "reviews",
+          id: transactionId,
+          values: { status },
         },
-      }
-    );
-  }, [mutate, invalidate, transactionId]);
+        {
+          onSuccess: () => {
+            invalidate({ resource: "reviews" });
+          },
+        }
+      );
+    },
+    [mutate, invalidate, transactionId]
+  );
 
   return {
     review,
@@ -241,21 +244,32 @@ export const useModalWithData = <T>() => {
 
 ```typescript
 // Memoize columns
-const columns = useMemo(() => [
-  { title: "Name", dataIndex: "name" },
-  { title: "Status", dataIndex: "status" },
-], []);
+const columns = useMemo(
+  () => [
+    { title: "Name", dataIndex: "name" },
+    { title: "Status", dataIndex: "status" },
+  ],
+  []
+);
 
 // Memoize filters
-const filters = useMemo(() => ({
-  status: statusFilter,
-  risk_level: riskFilter,
-}), [statusFilter, riskFilter]);
+const filters = useMemo(
+  () => ({
+    status: statusFilter,
+    risk_level: riskFilter,
+  }),
+  [statusFilter, riskFilter]
+);
 
 // Memoize handlers
-const handleClick = useCallback(() => {
-  // Handle click
-}, [/* dependencies */]);
+const handleClick = useCallback(
+  () => {
+    // Handle click
+  },
+  [
+    /* dependencies */
+  ]
+);
 ```
 
 ### Data Fetching Pattern
@@ -314,10 +328,7 @@ const handleSubmit = (values: RuleUpdate) => {
 
 ```typescript
 // src/shared/utils/errors.ts
-export const handleAsyncError = (
-  error: unknown,
-  fallbackMsg: string
-): Error => {
+export const handleAsyncError = (error: unknown, fallbackMsg: string): Error => {
   if (error instanceof Error) {
     return error;
   }
@@ -353,12 +364,7 @@ export const buildFilters = (filters: Record<string, unknown>) => {
 ```typescript
 // src/shared/utils/guards.ts
 export const isRule = (value: unknown): value is Rule => {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "rule_id" in value &&
-    "rule_name" in value
-  );
+  return typeof value === "object" && value !== null && "rule_id" in value && "rule_name" in value;
 };
 
 // Usage
@@ -441,18 +447,14 @@ describe("conditionNodeToPersistedTree", () => {
 
 ```typescript
 // BAD: Columns recreated on every render
-const columns = [
-  { title: "Name", dataIndex: "name" },
-];
+const columns = [{ title: "Name", dataIndex: "name" }];
 ```
 
 ### ✅ Do: Memoize columns
 
 ```typescript
 // GOOD: Columns created once
-const columns = useMemo(() => [
-  { title: "Name", dataIndex: "name" },
-], []);
+const columns = useMemo(() => [{ title: "Name", dataIndex: "name" }], []);
 ```
 
 ### ❌ Don't: Inline handlers
@@ -512,15 +514,15 @@ const condition = version?.condition_tree;
 
 ## File Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `ConditionBuilder.tsx` |
-| Utilities | camelCase | `conditionTree.ts` |
-| Types | camelCase | `domain.ts` |
-| Hooks | camelCase with `use` prefix | `useEditAuthorization.ts` |
-| Constants | PascalCase for objects | `RuleStatus.ts` |
-| Tests | Same as file + `.test.ts` | `conditionTree.test.ts` |
-| E2E Tests | kebab-case + `.spec.ts` | `rules.spec.ts` |
+| Type       | Convention                  | Example                   |
+| ---------- | --------------------------- | ------------------------- |
+| Components | PascalCase                  | `ConditionBuilder.tsx`    |
+| Utilities  | camelCase                   | `conditionTree.ts`        |
+| Types      | camelCase                   | `domain.ts`               |
+| Hooks      | camelCase with `use` prefix | `useEditAuthorization.ts` |
+| Constants  | PascalCase for objects      | `RuleStatus.ts`           |
+| Tests      | Same as file + `.test.ts`   | `conditionTree.test.ts`   |
+| E2E Tests  | kebab-case + `.spec.ts`     | `rules.spec.ts`           |
 
 ---
 
@@ -548,5 +550,5 @@ import { ConditionBuilder } from "./components";
 
 - **Workflow**: See [Development Workflow](./workflow.md)
 - **Architecture**: See [Architecture Overview](./architecture.md)
-- **Code Map**: See [Code Map](./codemap.md)
-- **Testing**: See [Testing Guide](../04-testing/overview.md)
+- **Code Map**: See [Code Map](../codemap.md)
+- **Testing**: See [Testing Guide](../04-testing/README.md)

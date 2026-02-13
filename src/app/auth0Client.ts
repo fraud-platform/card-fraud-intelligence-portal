@@ -24,6 +24,7 @@ type Auth0AppState = {
 const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN as string | undefined;
 const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID as string | undefined;
 const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE as string | undefined;
+const FORCE_DEV_AUTH = import.meta.env.VITE_FORCE_DEV_AUTH === "true";
 const AUTH0_ROLE_CLAIM =
   (import.meta.env.VITE_AUTH0_ROLE_CLAIM as string | undefined) ??
   "https://fraud-governance-api/roles";
@@ -47,8 +48,14 @@ export function isAuth0Enabled(): boolean {
   const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
   debugLog("VITE_E2E_MODE:", import.meta.env.VITE_E2E_MODE);
   debugLog("isE2EMode:", isE2EMode);
+  debugLog("VITE_FORCE_DEV_AUTH:", import.meta.env.VITE_FORCE_DEV_AUTH);
+  debugLog("forceDevAuth:", FORCE_DEV_AUTH);
   debugLog("AUTH0_DOMAIN:", AUTH0_DOMAIN);
   debugLog("AUTH0_CLIENT_ID:", AUTH0_CLIENT_ID);
+  if (FORCE_DEV_AUTH) {
+    debugLog("Auth0 disabled due to VITE_FORCE_DEV_AUTH");
+    return false;
+  }
   if (isE2EMode) {
     debugLog("Auth0 disabled due to E2E mode");
     return false;

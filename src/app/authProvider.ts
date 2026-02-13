@@ -152,6 +152,12 @@ function clearDevSession(): void {
   sessionStorage.removeItem("auth_session");
 }
 
+function canUseDevSessionFallback(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.location.hostname !== "localhost") return false;
+  return getDevSession() != null;
+}
+
 /**
  * Helper to extract a string value from Auth0 profile
  */
@@ -207,7 +213,7 @@ export const authProvider: AuthProvider = {
     try {
       const input = (params ?? {}) as LoginParams;
 
-      if (isAuth0Enabled()) {
+      if (isAuth0Enabled() && !canUseDevSessionFallback()) {
         await loginWithRedirect(input.returnTo ?? "/");
         return { success: true };
       }
@@ -301,7 +307,7 @@ export const authProvider: AuthProvider = {
    */
   logout: async () => {
     try {
-      if (isAuth0Enabled()) {
+      if (isAuth0Enabled() && !canUseDevSessionFallback()) {
         await logoutToHome();
         return {
           success: true,
@@ -330,7 +336,7 @@ export const authProvider: AuthProvider = {
    * Check if user is authenticated
    */
   check: async () => {
-    if (isAuth0Enabled()) {
+    if (isAuth0Enabled() && !canUseDevSessionFallback()) {
       try {
         const ok = await auth0IsAuthenticated();
 
@@ -388,7 +394,7 @@ export const authProvider: AuthProvider = {
    * Get current user identity
    */
   getIdentity: async (): Promise<User | null> => {
-    if (isAuth0Enabled()) {
+    if (isAuth0Enabled() && !canUseDevSessionFallback()) {
       const profile: Record<string, unknown> | null = await getUserProfile();
       const roles: SystemRole[] = await getAppRoles();
 
@@ -412,7 +418,7 @@ export const authProvider: AuthProvider = {
    * Get user permissions (role-based)
    */
   getPermissions: async (): Promise<SystemRole[] | null> => {
-    if (isAuth0Enabled()) {
+    if (isAuth0Enabled() && !canUseDevSessionFallback()) {
       const roles = await getAppRoles();
       return roles.length === 0 ? null : roles;
     }

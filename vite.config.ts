@@ -26,20 +26,5 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router"],
-          antd: ["antd", "@ant-design/icons"],
-          refine: [
-            "@refinedev/core",
-            "@refinedev/antd",
-            "@refinedev/react-router",
-            "@refinedev/simple-rest",
-          ],
-          query: ["@tanstack/react-query"],
-        },
-      },
-    },
   },
 });

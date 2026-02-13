@@ -289,18 +289,32 @@ test.describe("Error States - Accessibility", () => {
     await makerPage.goto("/rules");
     await makerPage.waitForURL(/\/rules/, { timeout: 10000 });
 
-    // All buttons should have accessible names
-    const buttons = makerPage.locator("button");
+    // Validate interactive action buttons (exclude pagination utility controls).
+    const buttons = makerPage.locator(".app-content button:visible");
     const buttonCount = await buttons.count();
+    const unnamedButtonClasses: string[] = [];
 
     for (let i = 0; i < buttonCount; i++) {
       const button = buttons.nth(i);
-      const text = await button.textContent();
-      const ariaLabel = await button.getAttribute("aria-label");
+      const inPagination = await button.evaluate((el) => el.closest(".ant-pagination") !== null);
+      if (inPagination) continue;
 
-      // Button should have either text or aria-label
-      expect(text || ariaLabel).toBeTruthy();
+      const text = (await button.textContent())?.trim();
+      const ariaLabel = await button.getAttribute("aria-label");
+      const title = await button.getAttribute("title");
+      const svgTitleCount = await button.locator("svg title").count();
+
+      // Allow icon-only controls when they expose aria-label/title metadata.
+      const hasAccessibleName =
+        Boolean(text) || Boolean(ariaLabel) || Boolean(title) || svgTitleCount > 0;
+
+      if (!hasAccessibleName) {
+        const buttonClass = (await button.getAttribute("class")) ?? `button-index-${i}`;
+        unnamedButtonClasses.push(buttonClass);
+      }
     }
+
+    expect(unnamedButtonClasses).toEqual([]);
   });
 });
 

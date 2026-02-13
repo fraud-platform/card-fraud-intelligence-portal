@@ -25,20 +25,76 @@ import "./metrics.css";
 
 const { Title, Text } = Typography;
 
+function normalizeApiBase(raw: string): string {
+  const trimmed = raw.replace(/\/$/, "");
+  return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
+}
+
+function resolveMetricsFallbackUrl(): string | null {
+  const txApiEnv =
+    (import.meta.env.VITE_API_URL_TRANSACTION_MGMT as string | undefined) ??
+    (import.meta.env.VITE_TRANSACTION_API_URL as string | undefined);
+
+  if (txApiEnv != null && txApiEnv !== "") {
+    return `${normalizeApiBase(txApiEnv)}/metrics`;
+  }
+
+  if (globalThis.location.hostname === "localhost") {
+    return "http://localhost:8002/api/v1/metrics";
+  }
+
+  return null;
+}
+
+function shouldRetryMetricsWithFallback(error: unknown): boolean {
+  if (error == null || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeError = error as { status?: number; message?: string };
+  if (maybeError.status === 404) {
+    return true;
+  }
+
+  return maybeError.message === "Network Error";
+}
+
 // Component is intentionally large; split into smaller parts if this grows further
 // eslint-disable-next-line max-lines-per-function
 export const TransactionMetrics: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<TransactionMetricsResponse | null>(null);
+  const metricsFallbackUrl = resolveMetricsFallbackUrl();
 
   useEffect(() => {
     const fetchMetrics = async (): Promise<void> => {
+      let lastError: unknown;
       try {
-        const response = await get<TransactionMetricsResponse>(TRANSACTIONS.METRICS);
-        setMetrics(response);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load metrics";
+        try {
+          const response = await get<TransactionMetricsResponse>(TRANSACTIONS.METRICS);
+          setMetrics(response);
+          return;
+        } catch (err) {
+          lastError = err;
+        }
+
+        if (
+          metricsFallbackUrl != null &&
+          metricsFallbackUrl !== "" &&
+          shouldRetryMetricsWithFallback(lastError)
+        ) {
+          try {
+            const fallbackResponse = await get<TransactionMetricsResponse>(metricsFallbackUrl);
+            setMetrics(fallbackResponse);
+            setError(null);
+            return;
+          } catch (fallbackError) {
+            lastError = fallbackError;
+          }
+        }
+
+        const message = lastError instanceof Error ? lastError.message : "Failed to load metrics";
         setError(message);
       } finally {
         setLoading(false);
@@ -46,7 +102,7 @@ export const TransactionMetrics: FC = () => {
     };
 
     void fetchMetrics();
-  }, []);
+  }, [metricsFallbackUrl]);
 
   if (loading) {
     return (

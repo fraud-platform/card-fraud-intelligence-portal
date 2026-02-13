@@ -116,6 +116,23 @@ function handleResourceRules(
   return null;
 }
 
+function hasLocalDevSession(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.location.hostname !== "localhost") return false;
+
+  const sessionStr = sessionStorage.getItem("auth_session");
+  if (sessionStr == null || sessionStr === "") return false;
+
+  try {
+    const session = JSON.parse(sessionStr) as { token?: string; expiresAt?: number };
+    if (typeof session.token !== "string" || session.token === "") return false;
+    if (typeof session.expiresAt === "number" && Date.now() > session.expiresAt) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Merge role permission sets.
  */
@@ -168,8 +185,8 @@ export const accessControlProvider: AccessControlProvider = {
         return resourceCheck;
       }
 
-      // Enforce API scopes if Auth0 is active
-      if (isAuth0Enabled()) {
+      // Enforce API scopes if Auth0 is active and we are not using local dev-session auth.
+      if (isAuth0Enabled() && !hasLocalDevSession()) {
         try {
           const scopes = await getAccessTokenScopes();
           const required = getRequiredScope(resource, action);

@@ -134,7 +134,8 @@ const TransactionShowContent: FC<TransactionShowContentProps> = ({
   initialReview,
   initialNotes,
 }): ReactElement => {
-  const { data: identity } = useGetIdentity<{ id: string; name: string }>();
+  const { data: identity } = useGetIdentity<{ id?: string; user_id?: string; name?: string }>();
+  const currentUserId = identity?.id ?? identity?.user_id;
 
   function renderDetailsPanels(transactionRecord: Transaction): ReactElement {
     return (
@@ -228,7 +229,7 @@ const TransactionShowContent: FC<TransactionShowContentProps> = ({
                   children: (
                     <NotesPanel
                       notes={notes}
-                      currentUserId={identity?.id}
+                      currentUserId={currentUserId}
                       onAddNote={handleAddNote}
                       onDeleteNote={handleDeleteNote}
                       onEditNote={(noteId, note) =>

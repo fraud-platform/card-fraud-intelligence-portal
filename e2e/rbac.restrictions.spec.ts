@@ -112,7 +112,8 @@ test.describe("RBAC - Maker Restrictions", () => {
 
   test("maker can access rule fields create page directly", async ({ makerPage }) => {
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(makerPage).toHaveURL(/\/rule-fields\/create/, { timeout: 10000 });
+    await expect(makerPage.getByText(/field details/i)).toBeVisible({ timeout: 10000 });
   });
 
   test("maker can access rule fields edit page directly", async ({ makerPage }) => {
@@ -323,9 +324,13 @@ test.describe("RBAC - UI Feedback", () => {
     await makerPage.waitForURL(/\/rules/, { timeout: 10000 });
     await expect(makerPage.locator(".ant-table")).toBeVisible({ timeout: 10000 });
 
-    const createButtons = makerPage.getByRole("button", { name: /create/i });
-    const editButtons = makerPage.getByRole("button", { name: /edit/i });
-    expect((await createButtons.count()) + (await editButtons.count())).toBeGreaterThan(0);
+    const createActions = makerPage.locator(
+      'button:has-text("Create"), a[href="/rules/create"], a[href*="/rules/create"]'
+    );
+    const editActions = makerPage.locator(
+      'button[aria-label*="edit" i], button:has-text("Edit"), a[href*="/rules/edit/"]'
+    );
+    expect((await createActions.count()) + (await editActions.count())).toBeGreaterThan(0);
   });
 
   test("checker sees appropriate action buttons", async ({ checkerPage }) => {

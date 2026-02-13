@@ -28,6 +28,8 @@ const { Title } = Typography;
  * Worklist List Page
  */
 
+// Keep workflow filters/stats/table together to reduce prop-drilling across files.
+// eslint-disable-next-line max-lines-per-function
 const WorklistList: FC = () => {
   const go = useGo();
   const initialFilters = useMemo(() => getInitialFilters(), []);

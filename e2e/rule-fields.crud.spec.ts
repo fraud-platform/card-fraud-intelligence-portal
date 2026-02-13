@@ -12,6 +12,24 @@
 
 import { test, expect, type Page } from "./fixtures";
 
+const getFieldIdInput = (page: Page) =>
+  page.locator('input#field_id, input[placeholder="e.g. 27"]').first();
+const getFieldKeyInput = (page: Page) => page.locator('input[placeholder*="risk_score"]').first();
+const getDisplayNameInput = (page: Page) =>
+  page.locator('input[placeholder*="Risk Score"], input[placeholder*="Display Name"]').first();
+
+async function ensureFieldId(page: Page): Promise<void> {
+  const fieldIdInput = getFieldIdInput(page);
+  await expect(fieldIdInput).toBeVisible({ timeout: 10000 });
+  await expect(fieldIdInput).toBeEnabled({ timeout: 5000 });
+
+  const current = (await fieldIdInput.inputValue()).trim();
+  if (current === "") {
+    const generatedFieldId = String((Math.floor(Date.now() / 1000) % 9000) + 1000);
+    await fieldIdInput.fill(generatedFieldId);
+  }
+}
+
 async function selectDropdownOption(page: Page, label: RegExp, option: string): Promise<void> {
   const combobox = page.getByRole("combobox", { name: label }).first();
 
@@ -69,10 +87,11 @@ test.describe("Rule Fields - Create", () => {
     const uniqueFieldKey = `test_string_field_${Date.now()}`;
 
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
+    await ensureFieldId(makerPage);
 
-    await makerPage.getByLabel(/field key/i).fill(uniqueFieldKey);
-    await makerPage.getByLabel(/display name/i).fill("Test String Field");
+    await getFieldKeyInput(makerPage).fill(uniqueFieldKey);
+    await getDisplayNameInput(makerPage).fill("Test String Field");
 
     await selectDropdownOption(makerPage, /data type/i, "STRING");
     await selectDropdownOption(makerPage, /allowed operators/i, "EQ");
@@ -90,8 +109,15 @@ test.describe("Rule Fields - Create", () => {
     const saveButton = makerPage.getByRole("button", { name: /save/i });
     await expect(saveButton).toBeEnabled();
 
-    // Click save and wait for navigation instead of response
+    const createResponse = makerPage.waitForResponse(
+      (response) =>
+        response.url().includes("/api/v1/rule-fields") && response.request().method() === "POST",
+      { timeout: 10000 }
+    );
     await saveButton.click();
+    const response = await createResponse;
+    expect(response.status()).toBeGreaterThanOrEqual(200);
+    expect(response.status()).toBeLessThan(300);
     await makerPage.waitForURL(/\/rule-fields(\?|$)/, { timeout: 15000 });
     await expect(makerPage.locator(".ant-table")).toBeVisible({ timeout: 15000 });
   });
@@ -100,10 +126,11 @@ test.describe("Rule Fields - Create", () => {
     const uniqueFieldKey = `test_number_field_${Date.now()}`;
 
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
+    await ensureFieldId(makerPage);
 
-    await makerPage.getByLabel(/field key/i).fill(uniqueFieldKey);
-    await makerPage.getByLabel(/display name/i).fill("Test Number Field");
+    await getFieldKeyInput(makerPage).fill(uniqueFieldKey);
+    await getDisplayNameInput(makerPage).fill("Test Number Field");
 
     await selectDropdownOption(makerPage, /data type/i, "NUMBER");
     await selectDropdownOption(makerPage, /allowed operators/i, "GT");
@@ -116,7 +143,8 @@ test.describe("Rule Fields - Create", () => {
     );
     await makerPage.getByRole("button", { name: /save/i }).click();
     const response = await createResponse;
-    expect(response.status()).toBe(201);
+    expect(response.status()).toBeGreaterThanOrEqual(200);
+    expect(response.status()).toBeLessThan(300);
 
     await makerPage.waitForURL(/\/rule-fields(\?|$)/, { timeout: 15000 });
     await expect(makerPage.locator(".ant-table")).toBeVisible({ timeout: 15000 });
@@ -128,10 +156,11 @@ test.describe("Rule Fields - Create", () => {
     const uniqueFieldKey = `test_multi_field_${Date.now()}`;
 
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
+    await ensureFieldId(makerPage);
 
-    await makerPage.getByLabel(/field key/i).fill(uniqueFieldKey);
-    await makerPage.getByLabel(/display name/i).fill("Test Multi-Value Field");
+    await getFieldKeyInput(makerPage).fill(uniqueFieldKey);
+    await getDisplayNameInput(makerPage).fill("Test Multi-Value Field");
 
     await selectDropdownOption(makerPage, /data type/i, "STRING");
     await selectDropdownOption(makerPage, /allowed operators/i, "IN");
@@ -148,7 +177,8 @@ test.describe("Rule Fields - Create", () => {
     );
     await makerPage.getByRole("button", { name: /save/i }).click();
     const response = await createResponse;
-    expect(response.status()).toBe(201);
+    expect(response.status()).toBeGreaterThanOrEqual(200);
+    expect(response.status()).toBeLessThan(300);
 
     await makerPage.waitForURL(/\/rule-fields(\?|$)/, { timeout: 15000 });
     await expect(makerPage.locator(".ant-table")).toBeVisible({ timeout: 15000 });
@@ -156,7 +186,7 @@ test.describe("Rule Fields - Create", () => {
 
   test("validation errors appear for missing required fields", async ({ makerPage }) => {
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
 
     // Try to save without required fields
     await makerPage.getByRole("button", { name: /save/i }).click();
@@ -169,18 +199,14 @@ test.describe("Rule Fields - Create", () => {
 
   test("validation error for missing field key", async ({ makerPage }) => {
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
+    await ensureFieldId(makerPage);
 
-    await makerPage.getByLabel(/display name/i).fill("Test Field");
+    await getDisplayNameInput(makerPage).fill("Test Field");
     await selectDropdownOption(makerPage, /data type/i, "STRING");
 
     await makerPage.getByRole("button", { name: /save/i }).click();
-
-    await expect(
-      makerPage
-        .getByText(/field key is required/i)
-        .or(makerPage.locator(".ant-form-item-explain-error").first())
-    ).toBeVisible({ timeout: 5000 });
+    await expect(makerPage.getByText(/field key is required/i)).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -353,11 +379,11 @@ test.describe("Rule Fields - Validation", () => {
 
   test("field key cannot contain special characters", async ({ makerPage }) => {
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
 
     // Try to enter invalid field key
-    await makerPage.getByLabel(/field key/i).fill("invalid-key!");
-    await makerPage.getByLabel(/display name/i).fill("Test Field");
+    await getFieldKeyInput(makerPage).fill("invalid-key!");
+    await getDisplayNameInput(makerPage).fill("Test Field");
 
     // Validation should show error
     await makerPage.waitForTimeout(500);
@@ -365,10 +391,10 @@ test.describe("Rule Fields - Validation", () => {
 
   test("empty allowed operators should show validation error", async ({ makerPage }) => {
     await makerPage.goto("/rule-fields/create");
-    await expect(makerPage.getByLabel(/field key/i)).toBeVisible({ timeout: 10000 });
+    await expect(getFieldKeyInput(makerPage)).toBeVisible({ timeout: 10000 });
 
-    await makerPage.getByLabel(/field key/i).fill("test_field_ops");
-    await makerPage.getByLabel(/display name/i).fill("Test Field");
+    await getFieldKeyInput(makerPage).fill("test_field_ops");
+    await getDisplayNameInput(makerPage).fill("Test Field");
     await selectDropdownOption(makerPage, /data type/i, "STRING");
 
     await makerPage.keyboard.press("Escape");

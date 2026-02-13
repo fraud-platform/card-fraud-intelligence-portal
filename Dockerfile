@@ -63,8 +63,9 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build the application (VITE_ env vars are embedded into the bundle)
-RUN pnpm build
+# Build the application (VITE_ env vars are embedded into the bundle).
+# Use direct binaries in container builds because Doppler CLI is not installed there.
+RUN pnpm exec tsc && pnpm exec vite build
 
 # =============================================================================
 # Stage 2: Production Nginx server - minimal Alpine image

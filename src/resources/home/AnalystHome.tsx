@@ -65,7 +65,6 @@ const buildWorklistQuery = (filters: SavedView["filters"]): string => {
   return query.length > 0 ? `?${query}` : "";
 };
 
-/* eslint-disable-next-line max-lines-per-function */
 export const AnalystHome: FC = () => {
   const navigate = useNavigate();
   const { stats, isLoading } = useWorklistStats(true, 60000);

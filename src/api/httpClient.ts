@@ -20,6 +20,39 @@ import { getAccessToken, isAuth0Enabled } from "../app/auth0Client";
 const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
 const envApiUrl = import.meta.env.VITE_API_URL as string | undefined;
 const resolvedBaseUrl = isE2EMode || envApiUrl == null || envApiUrl === "" ? "" : envApiUrl;
+const txApiEnv =
+  (import.meta.env.VITE_API_URL_TRANSACTION_MGMT as string | undefined) ??
+  (import.meta.env.VITE_TRANSACTION_API_URL as string | undefined);
+
+function normalizeTxApiBase(raw: string): string {
+  let base = raw.trim().replace(/\/$/, "");
+  if (base.endsWith("/api/v1")) {
+    base = base.slice(0, -"/api/v1".length);
+  }
+  return base;
+}
+
+function resolveTransactionApiRoot(): string | null {
+  if (typeof txApiEnv === "string" && txApiEnv !== "") {
+    return normalizeTxApiBase(txApiEnv);
+  }
+
+  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+    return "http://localhost:8002";
+  }
+
+  return null;
+}
+
+function shouldRouteToTransactionApi(url: string): boolean {
+  return (
+    url.startsWith("/api/v1/transactions") ||
+    url.startsWith("/api/v1/worklist") ||
+    url.startsWith("/api/v1/cases") ||
+    url === "/api/v1/metrics" ||
+    url.startsWith("/api/v1/metrics/")
+  );
+}
 
 export const httpClient = axios.create({
   baseURL: resolvedBaseUrl,
@@ -70,6 +103,14 @@ function getSessionToken(): string | null {
  */
 httpClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    if (typeof config.url === "string" && !/^https?:\/\//i.test(config.url)) {
+      const txApiRoot = resolveTransactionApiRoot();
+      if (txApiRoot != null && shouldRouteToTransactionApi(config.url)) {
+        config.baseURL = undefined;
+        config.url = `${txApiRoot}${config.url}`;
+      }
+    }
+
     if (isAuth0Enabled()) {
       const token = await getAccessToken();
       return applyAuthHeader(config, token);

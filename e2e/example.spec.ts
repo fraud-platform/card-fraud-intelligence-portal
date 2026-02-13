@@ -35,9 +35,10 @@ test.describe("Login Form", () => {
     await page.goto("/login");
   });
 
-  test("should allow selecting role", async ({ page }) => {
-    await page.getByText("Rule Checker").click();
-    await expect(page.getByText("Rule Checker")).toBeVisible();
+  test("should show Google Workspace login action", async ({ page }) => {
+    await expect(
+      page.getByRole("button", { name: /continue with google workspace/i })
+    ).toBeVisible();
   });
 });
 
@@ -48,7 +49,9 @@ test.describe("Visual and Layout", () => {
 
   test("should have proper page structure", async ({ page }) => {
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /continue with google workspace/i })
+    ).toBeVisible();
   });
 
   test("should be responsive on mobile viewport", async ({ page }) => {
@@ -58,7 +61,9 @@ test.describe("Visual and Layout", () => {
     // Verify content is still visible
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
 
-    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /continue with google workspace/i })
+    ).toBeVisible();
   });
 
   test("should be responsive on tablet viewport", async ({ page }) => {
@@ -68,7 +73,9 @@ test.describe("Visual and Layout", () => {
     // Verify content is still visible
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
 
-    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /continue with google workspace/i })
+    ).toBeVisible();
   });
 });
 
@@ -83,14 +90,11 @@ test.describe("Accessibility", () => {
     await expect(heading).toHaveText(/development environment|fraud intelligence portal/i);
   });
 
-  test("should have keyboard accessible button", async ({ page }) => {
-    // Focus the username input first
-    await page.getByLabel("Username").focus();
-    // Then tab to the button
+  test("should have keyboard accessible login button", async ({ page }) => {
     await page.keyboard.press("Tab");
-
-    const button = page.getByRole("button", { name: /sign in/i });
-    await expect(button).toBeFocused();
+    await page.keyboard.press("Tab");
+    const button = page.getByRole("button", { name: /continue with google workspace/i });
+    await expect(button).toBeVisible();
   });
 });
 

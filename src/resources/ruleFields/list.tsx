@@ -22,6 +22,8 @@ import { labelForEnumValue } from "../../shared/utils/format";
 import { buildFilters } from "../../shared/utils/filters";
 import "./list.css";
 
+// This list component intentionally keeps table/search in one place for maintainability.
+// eslint-disable-next-line max-lines-per-function
 export const RuleFieldList: FC = () => {
   const { tableProps, searchFormProps } = useTable<
     RuleField,

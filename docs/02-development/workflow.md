@@ -56,11 +56,13 @@ doppler run -- pnpm test:e2e
 The project uses Husky and lint-staged for pre-commit automation:
 
 **`.husky/pre-commit`**:
+
 ```bash
 pnpm lint-staged
 ```
 
 **`lintstagedrc.json`**:
+
 ```json
 {
   "*.{ts,tsx}": ["eslint --fix"],
@@ -72,13 +74,13 @@ pnpm lint-staged
 
 ## Quality Gates
 
-| Check | Command | Threshold | Status |
-|-------|---------|-----------|--------|
-| TypeScript | `pnpm type-check` | 0 errors | Required |
-| ESLint | `pnpm lint` | 0 errors | Required |
-| Unit Tests | `pnpm test:fast` | All pass | Required |
-| E2E Tests | `pnpm test:e2e` | All pass | Required |
-| Coverage | `pnpm test:coverage` | 80% all metrics | CI only |
+| Check      | Command              | Threshold       | Status   |
+| ---------- | -------------------- | --------------- | -------- |
+| TypeScript | `pnpm type-check`    | 0 errors        | Required |
+| ESLint     | `pnpm lint`          | 0 errors        | Required |
+| Unit Tests | `pnpm test:fast`     | All pass        | Required |
+| E2E Tests  | `pnpm test:e2e`      | All pass        | Required |
+| Coverage   | `pnpm test:coverage` | 80% all metrics | CI only  |
 
 ---
 
@@ -86,12 +88,12 @@ pnpm lint-staged
 
 ### Branch Strategy
 
-| Branch | Purpose | Protection |
-|--------|---------|------------|
-| `main` | Production code | Require PR, require checks |
-| `feature/*` | Feature development | None |
-| `fix/*` | Bug fixes | None |
-| `refactor/*` | Refactoring | None |
+| Branch       | Purpose             | Protection                 |
+| ------------ | ------------------- | -------------------------- |
+| `main`       | Production code     | Require PR, require checks |
+| `feature/*`  | Feature development | None                       |
+| `fix/*`      | Bug fixes           | None                       |
+| `refactor/*` | Refactoring         | None                       |
 
 ### Commit Guidelines
 
@@ -268,26 +270,35 @@ const isImmutable = rule?.status === RuleStatus.APPROVED;
 
 ```typescript
 // Memoize column definitions to prevent re-renders
-const columns = useMemo(() => [
-  {
-    title: "Name",
-    dataIndex: "rule_name",
-    key: "rule_name",
-    sorter: true,
-  },
-  // ... more columns
-], []);
+const columns = useMemo(
+  () => [
+    {
+      title: "Name",
+      dataIndex: "rule_name",
+      key: "rule_name",
+      sorter: true,
+    },
+    // ... more columns
+  ],
+  []
+);
 
 // Memoize filter objects
-const filters = useMemo(() => ({
-  status: statusFilter,
-  risk_level: riskFilter,
-}), [statusFilter, riskFilter]);
+const filters = useMemo(
+  () => ({
+    status: statusFilter,
+    risk_level: riskFilter,
+  }),
+  [statusFilter, riskFilter]
+);
 
 // Memoize handlers
-const handleStatusChange = useCallback(async (status: TransactionStatus) => {
-  await updateStatus({ status });
-}, [updateStatus]);
+const handleStatusChange = useCallback(
+  async (status: TransactionStatus) => {
+    await updateStatus({ status });
+  },
+  [updateStatus]
+);
 ```
 
 ### 8. Custom Hook Pattern
@@ -296,19 +307,22 @@ const handleStatusChange = useCallback(async (status: TransactionStatus) => {
 // src/hooks/useReview.ts
 export const useReview = (transactionId: string) => {
   const { data: review, isLoading } = useOne({
-    resource: 'reviews',
+    resource: "reviews",
     id: transactionId,
   });
 
   const { mutate } = useUpdate();
 
-  const updateStatus = useCallback((status: TransactionStatus) => {
-    mutate({
-      resource: 'reviews',
-      id: transactionId,
-      values: { status },
-    });
-  }, [mutate, transactionId]);
+  const updateStatus = useCallback(
+    (status: TransactionStatus) => {
+      mutate({
+        resource: "reviews",
+        id: transactionId,
+        values: { status },
+      });
+    },
+    [mutate, transactionId]
+  );
 
   return {
     review,
@@ -474,15 +488,15 @@ Create `.vscode/launch.json`:
 
 ## File Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `ConditionBuilder.tsx` |
-| Utilities | camelCase | `conditionTree.ts` |
-| Types | camelCase | `domain.ts` |
-| Hooks | camelCase with `use` prefix | `useEditAuthorization.ts` |
-| Constants | PascalCase for objects | `RuleStatus.ts` |
-| Tests | Same as file + `.test.ts` | `conditionTree.test.ts` |
-| E2E Tests | kebab-case + `.spec.ts` | `rules.spec.ts` |
+| Type       | Convention                  | Example                   |
+| ---------- | --------------------------- | ------------------------- |
+| Components | PascalCase                  | `ConditionBuilder.tsx`    |
+| Utilities  | camelCase                   | `conditionTree.ts`        |
+| Types      | camelCase                   | `domain.ts`               |
+| Hooks      | camelCase with `use` prefix | `useEditAuthorization.ts` |
+| Constants  | PascalCase for objects      | `RuleStatus.ts`           |
+| Tests      | Same as file + `.test.ts`   | `conditionTree.test.ts`   |
+| E2E Tests  | kebab-case + `.spec.ts`     | `rules.spec.ts`           |
 
 ---
 
@@ -537,7 +551,7 @@ doppler run -- pnpm build
 ## Next Steps
 
 - **Architecture**: See [Architecture Overview](./architecture.md)
-- **Code Map**: See [Code Map](./codemap.md)
+- **Code Map**: See [Code Map](../codemap.md)
 - **Patterns**: See [Code Patterns](./patterns.md)
-- **Testing**: See [Testing Guide](../04-testing/overview.md)
-- **API**: See [API Overview](../03-api/overview.md)
+- **Testing**: See [Testing Guide](../04-testing/README.md)
+- **API**: See [API Overview](../03-api/README.md)

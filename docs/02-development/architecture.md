@@ -1,4 +1,4 @@
-# Architecture Overview
+﻿# Architecture Overview
 
 System architecture, design patterns, and technical decisions for the Card Fraud Intelligence Portal.
 
@@ -24,50 +24,50 @@ System architecture, design patterns, and technical decisions for the Card Fraud
 ### High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Browser Layer                           │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐        │
-│  │   React UI  │───▶│ React Router│───▶│  Ant Design │        │
-│  │   (Vite)    │    │    v7       │    │     v5      │        │
-│  └─────────────┘    └─────────────┘    └─────────────┘        │
-│         │                                     │                 │
-│         │    ┌─────────────┐    ┌─────────────┐                 │
-│         └───▶│  Refine.dev │───▶│ React Query │                 │
-│              │   (Core)    │    │  (State)   │                 │
-│              └─────────────┘    └─────────────┘                 │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         Service Layer                           │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐        │
-│  │ Auth0 SPA   │    │   Axios     │    │   Sentry    │        │
-│  │  (Auth)     │    │  (HTTP)     │    │ (Errors)    │        │
-│  └─────────────┘    └─────────────┘    └─────────────┘        │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        Backend Services                         │
-│  ┌──────────────────────────┐    ┌──────────────────────────┐  │
-│  │   Rule Management API    │    │ Transaction Management   │  │
-│  │   (FastAPI / Quarkus)    │    │      (FastAPI)           │  │
-│  │   /api/v1/rules/*        │    │      /api/v1/*           │  │
-│  └──────────────────────────┘    └──────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         Browser Layer                           â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚   React UI  â”‚â”€â”€â”€â–¶â”‚ React Routerâ”‚â”€â”€â”€â–¶â”‚  Ant Design â”‚        â”‚
+â”‚  â”‚   (Vite)    â”‚    â”‚    v7       â”‚    â”‚     v5      â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â”‚         â”‚                                     â”‚                 â”‚
+â”‚         â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                 â”‚
+â”‚         â””â”€â”€â”€â–¶â”‚  Refine.dev â”‚â”€â”€â”€â–¶â”‚ React Query â”‚                 â”‚
+â”‚              â”‚   (Core)    â”‚    â”‚  (State)   â”‚                 â”‚
+â”‚              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+                              â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         Service Layer                           â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚ Auth0 SPA   â”‚    â”‚   Axios     â”‚    â”‚   Sentry    â”‚        â”‚
+â”‚  â”‚  (Auth)     â”‚    â”‚  (HTTP)     â”‚    â”‚ (Errors)    â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+                              â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        Backend Services                         â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚   Rule Management API    â”‚    â”‚ Transaction Management   â”‚  â”‚
+â”‚  â”‚   (FastAPI / Quarkus)    â”‚    â”‚      (FastAPI)           â”‚  â”‚
+â”‚  â”‚   /api/v1/rules/*        â”‚    â”‚      /api/v1/*           â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Technology Decisions
 
-| Layer | Technology | Rationale |
-|-------|------------|-----------|
-| **Build** | Vite 7 | Fast HMR, optimized production builds |
-| **Routing** | React Router 7 | Latest features, better type safety |
-| **Admin Framework** | Refine.dev | Rapid CRUD development, built-in data providers |
-| **UI Library** | Ant Design 5 | Enterprise components, accessible, themeable |
-| **State** | React Query | Server state, caching, background updates |
-| **Testing** | Vitest + Playwright | Fast unit tests, reliable E2E |
-| **Auth** | Auth0 SPA | Enterprise SSO, OAuth 2.0/OIDC compliant |
+| Layer               | Technology          | Rationale                                       |
+| ------------------- | ------------------- | ----------------------------------------------- |
+| **Build**           | Vite 7              | Fast HMR, optimized production builds           |
+| **Routing**         | React Router 7      | Latest features, better type safety             |
+| **Admin Framework** | Refine.dev          | Rapid CRUD development, built-in data providers |
+| **UI Library**      | Ant Design 5        | Enterprise components, accessible, themeable    |
+| **State**           | React Query         | Server state, caching, background updates       |
+| **Testing**         | Vitest + Playwright | Fast unit tests, reliable E2E                   |
+| **Auth**            | Auth0 SPA           | Enterprise SSO, OAuth 2.0/OIDC compliant        |
 
 ---
 
@@ -77,71 +77,71 @@ System architecture, design patterns, and technical decisions for the Card Fraud
 
 ```
 card-fraud-intelligence-portal/
-├── src/
-│   ├── api/                      # Backend API integration
-│   │   ├── endpoints.ts          # API route definitions
-│   │   ├── httpClient.ts         # Axios wrapper with auth
-│   │   ├── types.ts              # API request/response types
-│   │   └── fieldDefinitions.ts   # Field registry API client
-│   │
-│   ├── app/                      # Application core
-│   │   ├── accessControlProvider.ts  # RBAC enforcement
-│   │   ├── authProvider.ts           # Auth integration
-│   │   ├── auth0Client.ts            # Auth0 SPA wrapper
-│   │   ├── dataProvider.ts           # Refine data provider
-│   │   └── routes.tsx                # Resource registration
-│   │
-│   ├── components/               # Shared UI components
-│   │   ├── review/               # Transaction review components
-│   │   ├── notes/                # Analyst notes components
-│   │   └── fieldRegistry/        # Field registry components
-│   │
-│   ├── hooks/                    # Custom React hooks
-│   │   ├── useReview.ts          # Transaction review actions
-│   │   ├── useNotes.ts           # Notes CRUD operations
-│   │   ├── useWorklist.ts        # Worklist & claim next
-│   │   └── useCases.ts           # Case management
-│   │
-│   ├── mocks/                    # MSW mock handlers
-│   │   ├── handlers.ts           # API mock definitions
-│   │   └── data/                 # Mock data files
-│   │
-│   ├── pages/                    # Standalone pages
-│   │   ├── Login.tsx             # Login page (dev mode)
-│   │   └── Callback.tsx          # Auth0 OAuth callback
-│   │
-│   ├── resources/                # CRUD resources
-│   │   ├── ruleFields/           # Rule Field Metadata
-│   │   ├── rules/                # Fraud Rules
-│   │   ├── ruleSets/             # Rule Set Bundles
-│   │   ├── approvals/            # Governance Workflow
-│   │   ├── auditLogs/            # Compliance Trail
-│   │   ├── transactions/         # Transaction Management
-│   │   ├── worklist/             # Analyst Worklist
-│   │   └── cases/                # Case Management
-│   │
-│   ├── shared/                   # Shared utilities
-│   │   ├── components/           # Shared UI components
-│   │   ├── hooks/                # Shared hooks
-│   │   ├── utils/                # Utility functions
-│   │   └── constants/            # Constants
-│   │
-│   ├── theme/                    # Theming
-│   │   └── tokens.ts             # Color registries
-│   │
-│   └── types/                    # TypeScript types
-│       ├── domain.ts             # Core business entities
-│       ├── enums.ts              # Enumerations
-│       ├── transaction.ts        # Transaction types
-│       ├── review.ts             # Review workflow types
-│       ├── notes.ts              # Notes types
-│       ├── case.ts               # Case types
-│       └── worklist.ts           # Worklist types
-│
-├── e2e/                          # Playwright E2E tests
-├── docs/                         # Documentation
-├── public/                       # Static assets
-└── [config files]                # Build/tool configs
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ api/                      # Backend API integration
+â”‚   â”‚   â”œâ”€â”€ endpoints.ts          # API route definitions
+â”‚   â”‚   â”œâ”€â”€ httpClient.ts         # Axios wrapper with auth
+â”‚   â”‚   â”œâ”€â”€ types.ts              # API request/response types
+â”‚   â”‚   â””â”€â”€ fieldDefinitions.ts   # Field registry API client
+â”‚   â”‚
+â”‚   â”œâ”€â”€ app/                      # Application core
+â”‚   â”‚   â”œâ”€â”€ accessControlProvider.ts  # RBAC enforcement
+â”‚   â”‚   â”œâ”€â”€ authProvider.ts           # Auth integration
+â”‚   â”‚   â”œâ”€â”€ auth0Client.ts            # Auth0 SPA wrapper
+â”‚   â”‚   â”œâ”€â”€ dataProvider.ts           # Refine data provider
+â”‚   â”‚   â””â”€â”€ routes.tsx                # Resource registration
+â”‚   â”‚
+â”‚   â”œâ”€â”€ components/               # Shared UI components
+â”‚   â”‚   â”œâ”€â”€ review/               # Transaction review components
+â”‚   â”‚   â”œâ”€â”€ notes/                # Analyst notes components
+â”‚   â”‚   â””â”€â”€ fieldRegistry/        # Field registry components
+â”‚   â”‚
+â”‚   â”œâ”€â”€ hooks/                    # Custom React hooks
+â”‚   â”‚   â”œâ”€â”€ useReview.ts          # Transaction review actions
+â”‚   â”‚   â”œâ”€â”€ useNotes.ts           # Notes CRUD operations
+â”‚   â”‚   â”œâ”€â”€ useWorklist.ts        # Worklist & claim next
+â”‚   â”‚   â””â”€â”€ useCases.ts           # Case management
+â”‚   â”‚
+â”‚   â”œâ”€â”€ mocks/                    # MSW mock handlers
+â”‚   â”‚   â”œâ”€â”€ handlers.ts           # API mock definitions
+â”‚   â”‚   â””â”€â”€ data/                 # Mock data files
+â”‚   â”‚
+â”‚   â”œâ”€â”€ pages/                    # Standalone pages
+â”‚   â”‚   â”œâ”€â”€ Login.tsx             # Login page (dev mode)
+â”‚   â”‚   â””â”€â”€ Callback.tsx          # Auth0 OAuth callback
+â”‚   â”‚
+â”‚   â”œâ”€â”€ resources/                # CRUD resources
+â”‚   â”‚   â”œâ”€â”€ ruleFields/           # Rule Field Metadata
+â”‚   â”‚   â”œâ”€â”€ rules/                # Fraud Rules
+â”‚   â”‚   â”œâ”€â”€ ruleSets/             # Rule Set Bundles
+â”‚   â”‚   â”œâ”€â”€ approvals/            # Governance Workflow
+â”‚   â”‚   â”œâ”€â”€ auditLogs/            # Compliance Trail
+â”‚   â”‚   â”œâ”€â”€ transactions/         # Transaction Management
+â”‚   â”‚   â”œâ”€â”€ worklist/             # Analyst Worklist
+â”‚   â”‚   â””â”€â”€ cases/                # Case Management
+â”‚   â”‚
+â”‚   â”œâ”€â”€ shared/                   # Shared utilities
+â”‚   â”‚   â”œâ”€â”€ components/           # Shared UI components
+â”‚   â”‚   â”œâ”€â”€ hooks/                # Shared hooks
+â”‚   â”‚   â”œâ”€â”€ utils/                # Utility functions
+â”‚   â”‚   â””â”€â”€ constants/            # Constants
+â”‚   â”‚
+â”‚   â”œâ”€â”€ theme/                    # Theming
+â”‚   â”‚   â””â”€â”€ tokens.ts             # Color registries
+â”‚   â”‚
+â”‚   â””â”€â”€ types/                    # TypeScript types
+â”‚       â”œâ”€â”€ domain.ts             # Core business entities
+â”‚       â”œâ”€â”€ enums.ts              # Enumerations
+â”‚       â”œâ”€â”€ transaction.ts        # Transaction types
+â”‚       â”œâ”€â”€ review.ts             # Review workflow types
+â”‚       â”œâ”€â”€ notes.ts              # Notes types
+â”‚       â”œâ”€â”€ case.ts               # Case types
+â”‚       â””â”€â”€ worklist.ts           # Worklist types
+â”‚
+â”œâ”€â”€ e2e/                          # Playwright E2E tests
+â”œâ”€â”€ docs/                         # Documentation
+â”œâ”€â”€ public/                       # Static assets
+â””â”€â”€ [config files]                # Build/tool configs
 ```
 
 ---
@@ -202,12 +202,12 @@ Handles ID normalization and query building:
 ```typescript
 // ID field mapping
 {
-  rule_id → id
-  ruleset_id → id
-  approval_id → id
-  field_key → id
-  transaction_id → id
-  case_id → id
+  rule_id â†’ id
+  ruleset_id â†’ id
+  approval_id â†’ id
+  field_key â†’ id
+  transaction_id â†’ id
+  case_id â†’ id
 }
 ```
 
@@ -229,49 +229,49 @@ RBAC enforcement for maker-checker workflow:
 ### Maker-Checker Flow
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│                     Maker Workflow                         │
-├───────────────────────────────────────────────────────────┤
-│  1. Create/Edit Entity → 2. Save as DRAFT → 3. Submit     │
-└───────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌───────────────────────────────────────────────────────────┐
-│                    Checker Workflow                        │
-├───────────────────────────────────────────────────────────┤
-│  4. View Pending → 5. Review Changes → 6. Approve/Reject  │
-└───────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     Maker Workflow                         â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  1. Create/Edit Entity â†’ 2. Save as DRAFT â†’ 3. Submit     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+                              â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    Checker Workflow                        â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  4. View Pending â†’ 5. Review Changes â†’ 6. Approve/Reject  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Rule Versioning Flow
 
 ```
 Existing Rule (APPROVED)
-         │
-         │ Edit Request
-         ▼
+         â”‚
+         â”‚ Edit Request
+         â–¼
 Create New Version (DRAFT)
-         │
-         │ Submit
-         ▼
+         â”‚
+         â”‚ Submit
+         â–¼
 New Version (PENDING_APPROVAL)
-         │
-         │ Approve
-         ▼
+         â”‚
+         â”‚ Approve
+         â–¼
 New Version (APPROVED)
-         │
-         │ (Old version remains immutable)
+         â”‚
+         â”‚ (Old version remains immutable)
 ```
 
 ### Analyst Workflow
 
 ```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│  Worklist   │      │   Review    │      │   Case      │
-│   (Claim)   │ ───► │ (Analyze)   │ ───► │ (Resolve)   │
-└─────────────┘      └─────────────┘      └─────────────┘
-       │                    │                    │
-       └──── Notes ─────────┴──── Matched Rules ─────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Worklist   â”‚      â”‚   Review    â”‚      â”‚   Case      â”‚
+â”‚   (Claim)   â”‚ â”€â”€â”€â–º â”‚ (Analyze)   â”‚ â”€â”€â”€â–º â”‚ (Resolve)   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+       â”‚                    â”‚                    â”‚
+       â””â”€â”€â”€â”€ Notes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€ Matched Rules â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -282,44 +282,48 @@ New Version (APPROVED)
 
 ```
 App
-├── AuthProvider (Auth0/Dev mode)
-├── RefineProvider
-│   ├── DataProvider
-│   ├── AccessControlProvider
-│   └── NotificationProvider
-├── Refine
-│   ├── Sidebar (Navigation)
-│   ├── Header (User info, logout)
-│   └── Resource Routes
-│       ├── List
-│       ├── Create
-│       ├── Edit
-│       └── Show
-├── ErrorBoundary
-└── Sentry.ErrorBoundary
+â”œâ”€â”€ AuthProvider (Auth0/Dev mode)
+â”œâ”€â”€ RefineProvider
+â”‚   â”œâ”€â”€ DataProvider
+â”‚   â”œâ”€â”€ AccessControlProvider
+â”‚   â””â”€â”€ NotificationProvider
+â”œâ”€â”€ Refine
+â”‚   â”œâ”€â”€ Sidebar (Navigation)
+â”‚   â”œâ”€â”€ Header (User info, logout)
+â”‚   â””â”€â”€ Resource Routes
+â”‚       â”œâ”€â”€ List
+â”‚       â”œâ”€â”€ Create
+â”‚       â”œâ”€â”€ Edit
+â”‚       â””â”€â”€ Show
+â”œâ”€â”€ ErrorBoundary
+â””â”€â”€ Sentry.ErrorBoundary
 ```
 
 ### Component Patterns
 
 **1. List Components** (`list.tsx`):
+
 - Use `useTable` hook for data fetching
 - Implement filters via `syncWithLocation`
 - Memoize column definitions
 - Handle row actions consistently
 
 **2. Form Components** (`create.tsx`, `edit.tsx`):
+
 - Use `useForm` hook from Refine
 - Implement validation rules
 - Handle success/error notifications
 - Use `useCan` for authorization checks
 
 **3. Show Components** (`show.tsx`):
+
 - Use `useOne` hook for data fetching
 - Display read-only information
 - Support tabbed content for related data
 - Add action buttons based on permissions
 
 **4. Shared Components**:
+
 - Extract reusable logic to `src/shared/components/`
 - Use composition over inheritance
 - Implement proper TypeScript types
@@ -327,12 +331,12 @@ App
 
 ### Component Size Guidelines
 
-| Target | Lines | Status |
-|--------|-------|--------|
-| List components | < 150 | ✅ Achieved |
-| Form components | < 200 | ✅ Achieved |
-| Show components | < 200 | ✅ Achieved |
-| Shared components | < 100 | ✅ Achieved |
+| Target            | Lines | Status       |
+| ----------------- | ----- | ------------ |
+| List components   | < 150 | âœ… Achieved |
+| Form components   | < 200 | âœ… Achieved |
+| Show components   | < 200 | âœ… Achieved |
+| Shared components | < 100 | âœ… Achieved |
 
 Large components have been broken down into smaller, focused sub-components.
 
@@ -342,24 +346,25 @@ Large components have been broken down into smaller, focused sub-components.
 
 ### Client State
 
-| State | Solution | Scope |
-|-------|----------|-------|
-| **UI State** | useState/useReducer | Component level |
-| **Form State** | Ant Design Form | Form level |
-| **Modal State** | useModalAction hook | Shared |
-| **Route State** | React Router | Global |
+| State           | Solution            | Scope           |
+| --------------- | ------------------- | --------------- |
+| **UI State**    | useState/useReducer | Component level |
+| **Form State**  | Ant Design Form     | Form level      |
+| **Modal State** | useModalAction hook | Shared          |
+| **Route State** | React Router        | Global          |
 
 ### Server State
 
-| State | Solution | Configuration |
-|-------|----------|--------------|
-| **API Data** | React Query (via Refine) | Cached, refetch on window focus |
-| **Mutations** | useMutation hook | Optimistic updates |
-| **Invalidation** | useInvalidate hook | Manual refetch triggers |
+| State            | Solution                 | Configuration                   |
+| ---------------- | ------------------------ | ------------------------------- |
+| **API Data**     | React Query (via Refine) | Cached, refetch on window focus |
+| **Mutations**    | useMutation hook         | Optimistic updates              |
+| **Invalidation** | useInvalidate hook       | Manual refetch triggers         |
 
 ### State Management Patterns
 
 **1. Data Fetching**:
+
 ```typescript
 const { data, isLoading, error } = useOne({
   resource: "rules",
@@ -368,6 +373,7 @@ const { data, isLoading, error } = useOne({
 ```
 
 **2. Mutations**:
+
 ```typescript
 const { mutate } = useUpdate();
 mutate(
@@ -377,6 +383,7 @@ mutate(
 ```
 
 **3. Custom Hooks**:
+
 ```typescript
 // Encapsulate related state and operations
 export const useReview = (transactionId: string) => {
@@ -393,29 +400,29 @@ export const useReview = (transactionId: string) => {
 ### Authentication Flow
 
 ```
-User → Auth0 Login → ID Token + Access Token → React SPA
-                                              │
-                                              ▼
-                                    ┌─────────────────┐
-                                    │  Token Storage  │
-                                    ├─────────────────┤
-                                    │ Dev: sessionStorage│
-                                    │ Prod: Memory    │
-                                    └─────────────────┘
+User â†’ Auth0 Login â†’ ID Token + Access Token â†’ React SPA
+                                              â”‚
+                                              â–¼
+                                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                                    â”‚  Token Storage  â”‚
+                                    â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+                                    â”‚ Dev: sessionStorageâ”‚
+                                    â”‚ Prod: Memory    â”‚
+                                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Authorization Layers
 
-| Layer | Implementation | Purpose |
-|-------|----------------|---------|
-| **UI** | `accessControlProvider` | Hide/disable actions |
-| **Router** | Protected routes | Redirect unauthorized |
-| **API Client** | Auth headers | Send tokens |
-| **Backend** | Role/permission checks | Actual enforcement |
+| Layer          | Implementation          | Purpose               |
+| -------------- | ----------------------- | --------------------- |
+| **UI**         | `accessControlProvider` | Hide/disable actions  |
+| **Router**     | Protected routes        | Redirect unauthorized |
+| **API Client** | Auth headers            | Send tokens           |
+| **Backend**    | Role/permission checks  | Actual enforcement    |
 
 ### Security Features
 
-- **PII Masking**: Fields with `is_sensitive: true` render as `••••`
+- **PII Masking**: Fields with `is_sensitive: true` render as `â€¢â€¢â€¢â€¢`
 - **No PAN**: Card numbers never handled in UI
 - **Input Validation**: Form validation at component level
 - **XSS Prevention**: Proper escaping, no `dangerouslySetInnerHTML`
@@ -428,64 +435,43 @@ User → Auth0 Login → ID Token + Access Token → React SPA
 
 ### Why Refine.dev?
 
-| Decision | Rationale |
-|----------|-----------|
-| **Chose Refine** | Rapid CRUD development, built-in data providers |
-| **Ant Design integration** | Enterprise components, consistent patterns |
-| **React Query included** | Efficient server state management |
-| **TypeScript first** | Type-safe development |
+| Decision                   | Rationale                                       |
+| -------------------------- | ----------------------------------------------- |
+| **Chose Refine**           | Rapid CRUD development, built-in data providers |
+| **Ant Design integration** | Enterprise components, consistent patterns      |
+| **React Query included**   | Efficient server state management               |
+| **TypeScript first**       | Type-safe development                           |
 
 ### Why React Router v7?
 
-| Decision | Rationale |
-|----------|-----------|
-| **Upgraded from v6** | Latest features, better type safety |
-| **New route syntax** | Simpler route definitions |
-| **Built-in data loading** | Better loading states |
+| Decision                  | Rationale                           |
+| ------------------------- | ----------------------------------- |
+| **Upgraded from v6**      | Latest features, better type safety |
+| **New route syntax**      | Simpler route definitions           |
+| **Built-in data loading** | Better loading states               |
 
 ### Why Ant Design?
 
-| Decision | Rationale |
-|----------|-----------|
-| **Enterprise components** | Tables, forms, modals out of box |
-| **Accessibility** | WCAG compliant components |
-| **Theming** | Easy customization via Design Tokens |
-| **Documentation** | Comprehensive examples |
+| Decision                  | Rationale                            |
+| ------------------------- | ------------------------------------ |
+| **Enterprise components** | Tables, forms, modals out of box     |
+| **Accessibility**         | WCAG compliant components            |
+| **Theming**               | Easy customization via Design Tokens |
+| **Documentation**         | Comprehensive examples               |
 
 ### Why MSW for Mocking?
 
-| Decision | Rationale |
-|----------|-----------|
-| **API-first mocking** | Mock at network level |
+| Decision                | Rationale                       |
+| ----------------------- | ------------------------------- |
+| **API-first mocking**   | Mock at network level           |
 | **Dev and test parity** | Same mocks in both environments |
-| **Type-safe requests** | TypeScript integration |
-
----
-
-## Architecture Grade: A- → Target A+
-
-| Area | Grade | Notes |
-|------|-------|-------|
-| Refine.dev Integration | A | Excellent patterns |
-| TypeScript Strict Mode | A | No `any`, comprehensive types |
-| Custom Hooks Pattern | A | Good separation |
-| Test Coverage | A | 80%+ all metrics |
-| Access Control/RBAC | A | Clean maker-checker |
-| **Component Size** | **A** | **Done** - broken down |
-| **Code Duplication** | **A** | **Done** - utilities extracted |
-| **Error Handling** | **A** | **Done** - handleAsyncError utility |
-| **Memoization** | **A-** | **In progress** - needs AbortController |
-
-**Remaining for A+**:
-- Complete memoization (add AbortController to hooks)
-- Fix 10 remaining ESLint warnings
-- Add nonce-based CSP (requires Vite plugin)
+| **Type-safe requests**  | TypeScript integration          |
 
 ---
 
 ## Next Steps
 
-- **Code Map**: See [Code Map](./codemap.md)
+- **Code Map**: See [Code Map](../codemap.md)
 - **Patterns**: See [Code Patterns](./patterns.md)
-- **Resources**: See [Resources](./resource-overview.md)
-- **API**: See [API Overview](../03-api/overview.md)
+- **Resources**: See [Development README](./README.md)
+- **API**: See [API README](../03-api/README.md)

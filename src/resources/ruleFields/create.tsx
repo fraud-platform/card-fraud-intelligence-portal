@@ -13,6 +13,7 @@ import { Alert, Card, Form, Input, InputNumber, Select, Switch, Typography } fro
 import "./list.css";
 import { DataType, Operator } from "../../types/enums";
 import { fieldDefinitionsApi } from "../../api/fieldDefinitions";
+import { dataProvider } from "../../app/dataProvider";
 
 const { Text } = Typography;
 
@@ -25,6 +26,73 @@ const operatorOptions = Object.values(Operator).map((v) => ({
   label: v,
   value: v,
 }));
+
+interface FieldFormLike {
+  setFieldsValue: (values: { field_id: number }) => void;
+}
+
+type NotifyFn =
+  | ((args: { type: "warning" | "error"; message: string; description: string }) => void)
+  | undefined;
+
+async function getFallbackFieldId(): Promise<number | null> {
+  try {
+    const response = await dataProvider.getList<{ field_id?: number }>({
+      resource: "rule-fields",
+      pagination: { pageSize: 1000 },
+    });
+
+    const usedIds = new Set(
+      response.data
+        .map((item) => item.field_id)
+        .filter((id): id is number => typeof id === "number" && Number.isInteger(id) && id > 0)
+    );
+
+    for (let candidate = 1; candidate <= 10000; candidate += 1) {
+      if (!usedIds.has(candidate)) {
+        return candidate;
+      }
+    }
+  } catch {
+    // ignore and use timestamp fallback below
+  }
+
+  const timeBasedCandidate = (Math.floor(Date.now() / 1000) % 9000) + 1000;
+  return timeBasedCandidate;
+}
+
+async function hydrateFieldId(
+  form: FieldFormLike | undefined,
+  open: NotifyFn,
+  setNextFieldId: (id: number | null) => void,
+  setIsLoadingFieldId: (isLoading: boolean) => void
+): Promise<void> {
+  try {
+    const response = await fieldDefinitionsApi.getNextFieldId();
+    setNextFieldId(response.next_field_id);
+    form?.setFieldsValue({ field_id: response.next_field_id });
+  } catch {
+    const fallbackId = await getFallbackFieldId();
+    if (fallbackId !== null) {
+      setNextFieldId(fallbackId);
+      form?.setFieldsValue({ field_id: fallbackId });
+      open?.({
+        type: "warning",
+        message: "Using fallback field ID",
+        description: `Auto-suggest service unavailable. Using fallback ID ${fallbackId}.`,
+      });
+    } else {
+      open?.({
+        type: "error",
+        message: "Failed to fetch next field ID",
+        description: "Please enter a field ID manually.",
+      });
+      setNextFieldId(null);
+    }
+  } finally {
+    setIsLoadingFieldId(false);
+  }
+}
 
 /**
  * Helper component to render the field ID help text based on loading state
@@ -46,8 +114,6 @@ const FieldIdHelpText: FC<FieldIdHelpTextProps> = ({ isLoading, nextFieldId }) =
   return <Text type="warning">Failed to load auto-suggested ID. Please enter manually.</Text>;
 };
 
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* TODO: Refactor nested ternary expressions and add explicit types */
 export const RuleFieldCreate: FC = () => {
   const { formProps, saveButtonProps } = useForm({
     resource: "rule-fields",
@@ -61,27 +127,13 @@ export const RuleFieldCreate: FC = () => {
   const [nextFieldId, setNextFieldId] = useState<number | null>(null);
   const [isLoadingFieldId, setIsLoadingFieldId] = useState(true);
 
-  // Fetch next field ID on mount
   useEffect(() => {
-    const fetchNextFieldId = async () => {
-      try {
-        const response = await fieldDefinitionsApi.getNextFieldId();
-        setNextFieldId(response.next_field_id);
-        // Pre-fill form with the suggested field_id
-        formProps.form?.setFieldsValue({ field_id: response.next_field_id });
-      } catch {
-        open?.({
-          type: "error",
-          message: "Failed to fetch next field ID",
-          description: "Please enter a field ID manually.",
-        });
-        setNextFieldId(null);
-      } finally {
-        setIsLoadingFieldId(false);
-      }
-    };
-
-    void fetchNextFieldId();
+    void hydrateFieldId(
+      formProps.form as FieldFormLike | undefined,
+      open as NotifyFn,
+      setNextFieldId,
+      setIsLoadingFieldId
+    );
   }, [formProps.form, open]);
 
   useEffect(() => {

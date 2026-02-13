@@ -168,6 +168,8 @@ function HeaderBar({
         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         onClick={onToggle}
         className="header-toggle"
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       />
 
       <Dropdown menu={{ items: userMenuItems }} trigger={["click"]} placement="bottomRight">
