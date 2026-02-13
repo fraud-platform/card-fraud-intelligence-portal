@@ -61,5 +61,8 @@ This model avoids unlinked setup/how-to fragments while preserving high-value de
 pnpm lint
 pnpm type-check
 pnpm test:unit
+pnpm test:unit:shard -- --shard=1/4
 pnpm test:e2e -- --project=chromium
 ```
+
+For Vitest runtime tuning and sharding flags (`VITEST_*`, `MSW_*`), see `docs/04-testing/README.md`.

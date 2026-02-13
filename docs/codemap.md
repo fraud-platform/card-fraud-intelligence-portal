@@ -104,9 +104,12 @@ pnpm dev
 pnpm lint
 pnpm type-check
 pnpm test:unit
+pnpm test:unit:shard -- --shard=1/4
 pnpm test:e2e -- --project=chromium
 pnpm build
 ```
+
+Unit-test runtime tuning and sharding flags are documented in `docs/04-testing/README.md` (`VITEST_*`, `MSW_*`).
 
 ## Detailed Docs Index
 

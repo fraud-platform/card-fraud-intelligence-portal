@@ -54,6 +54,12 @@ pnpm test:unit
 pnpm test:e2e -- --project=chromium
 ```
 
+For CI matrix jobs, use shard-aware unit command:
+
+```powershell
+pnpm test:unit:shard -- --shard=1/4
+```
+
 Use full multi-browser E2E in CI or when validating browser-specific behavior:
 
 ```powershell

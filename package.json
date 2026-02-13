@@ -14,6 +14,7 @@
     "test:watch": "vitest watch --no-coverage",
     "test:unit": "vitest run --no-coverage",
     "test:unit:fast": "vitest run --no-coverage --reporter=dot",
+    "test:unit:shard": "node scripts/run-vitest-shard.cjs",
     "test:integration": "vitest run \"src/**/*.integration.test.ts\" \"src/**/*.integration.test.tsx\" --no-coverage",
     "test:coverage": "vitest run --coverage",
     "test:coverage:ui": "vitest run --coverage && start coverage/index.html",

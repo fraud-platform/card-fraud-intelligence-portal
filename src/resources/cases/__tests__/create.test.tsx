@@ -259,7 +259,7 @@ describe("CaseCreate", () => {
 
       // Enter short title
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "abc");
+      fireEvent.change(titleInput, { target: { value: "abc" } });
 
       // Try to submit
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -282,7 +282,7 @@ describe("CaseCreate", () => {
 
       // Enter valid title
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Valid investigation title");
+      fireEvent.change(titleInput, { target: { value: "Valid investigation title" } });
 
       // Try to submit - should not show title length error
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -303,7 +303,7 @@ describe("CaseCreate", () => {
 
       // Enter only required fields
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Valid investigation title");
+      fireEvent.change(titleInput, { target: { value: "Valid investigation title" } });
 
       // Description is optional, so no error should be shown
       expect(screen.queryByText("Description")).toBeInTheDocument();
@@ -326,10 +326,10 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test investigation case");
+      fireEvent.change(titleInput, { target: { value: "Test investigation case" } });
 
       const descriptionInput = screen.getByPlaceholderText("Detailed description of the case...");
-      await userEvent.type(descriptionInput, "This is a detailed description");
+      fireEvent.change(descriptionInput, { target: { value: "This is a detailed description" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -360,7 +360,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test investigation case");
+      fireEvent.change(titleInput, { target: { value: "Test investigation case" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -390,7 +390,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test investigation case");
+      fireEvent.change(titleInput, { target: { value: "Test investigation case" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -417,7 +417,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test investigation case");
+      fireEvent.change(titleInput, { target: { value: "Test investigation case" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -493,7 +493,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test fraud ring case");
+      fireEvent.change(titleInput, { target: { value: "Test fraud ring case" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -589,7 +589,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test case with critical risk");
+      fireEvent.change(titleInput, { target: { value: "Test case with critical risk" } });
 
       // Submit form
       const createButton = screen.getByRole("button", { name: /Create Case/ });
@@ -726,10 +726,12 @@ describe("CaseCreate", () => {
 
       // Fill all fields
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Complete test case");
+      fireEvent.change(titleInput, { target: { value: "Complete test case" } });
 
       const descriptionInput = screen.getByPlaceholderText("Detailed description of the case...");
-      await userEvent.type(descriptionInput, "Complete description with all details");
+      fireEvent.change(descriptionInput, {
+        target: { value: "Complete description with all details" },
+      });
 
       // Select different case type
       let expectedCaseType = "DISPUTE";
@@ -830,7 +832,7 @@ describe("CaseCreate", () => {
 
       // Fill form
       const titleInput = screen.getByPlaceholderText("Brief description of the investigation");
-      await userEvent.type(titleInput, "Test case");
+      fireEvent.change(titleInput, { target: { value: "Test case" } });
 
       // Submit form multiple times quickly
       const createButton = screen.getByRole("button", { name: /Create Case/ });

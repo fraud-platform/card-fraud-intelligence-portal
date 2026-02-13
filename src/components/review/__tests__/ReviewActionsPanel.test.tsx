@@ -5,7 +5,7 @@
  * and modals for transaction review workflow.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReviewActionsPanel } from "../ReviewActionsPanel";
@@ -56,8 +56,6 @@ describe("ReviewActionsPanel", () => {
       error: null,
     });
   });
-
-  afterEach(() => {});
 
   const createMockReview = (overrides?: Partial<TransactionReview>): TransactionReview => ({
     id: "review-1",
@@ -335,7 +333,6 @@ describe("ReviewActionsPanel", () => {
       const cancelButton = within(modal).getByRole("button", { name: /cancel/i });
       await user.click(cancelButton);
 
-      // Modal should be closed (accept removal or hidden due to AntD behavior)
       await waitFor(
         () => {
           const dlg = screen.queryByRole("dialog");
@@ -365,7 +362,6 @@ describe("ReviewActionsPanel", () => {
       const cancelButton = within(modal).getByRole("button", { name: /cancel/i });
       await user.click(cancelButton);
 
-      // Modal should be closed (accept removal or hidden due to AntD behavior)
       await waitFor(
         () => {
           const dlg = screen.queryByRole("dialog");
@@ -395,7 +391,6 @@ describe("ReviewActionsPanel", () => {
       const cancelButton = await within(modal).findByRole("button", { name: /cancel/i });
       await user.click(cancelButton);
 
-      // Modal should be closed (accept removal or hidden due to AntD behavior)
       await waitFor(
         () => {
           const dlg = screen.queryByRole("dialog");
@@ -420,7 +415,7 @@ describe("ReviewActionsPanel", () => {
 
       const modal = await screen.findByRole("dialog");
       const analystInput = await within(modal).findByPlaceholderText(/enter analyst id/i);
-      await user.type(analystInput, "analyst-123");
+      fireEvent.change(analystInput, { target: { value: "analyst-123" } });
 
       // Submit the form
       const submitButton = await within(modal).findByRole("button", { name: /assign/i });
@@ -453,24 +448,20 @@ describe("ReviewActionsPanel", () => {
       const notesTextarea = await within(modal).findByPlaceholderText(
         "Describe your findings and rationale..."
       );
-      await user.type(notesTextarea, "Confirmed fraudulent");
+      fireEvent.change(notesTextarea, { target: { value: "Confirmed fraudulent" } });
 
       // Submit the form
       const submitButton = await within(modal).findByRole("button", { name: /resolve/i });
       await user.click(submitButton);
 
-      // Allow extra time for async handlers and animations
-      await waitFor(
-        () => {
-          expect(onResolve).toHaveBeenCalledWith(
-            "FRAUD_CONFIRMED",
-            "Confirmed fraudulent",
-            undefined,
-            undefined
-          );
-        },
-        { timeout: 10000 }
-      );
+      await waitFor(() => {
+        expect(onResolve).toHaveBeenCalledWith(
+          "FRAUD_CONFIRMED",
+          "Confirmed fraudulent",
+          undefined,
+          undefined
+        );
+      });
     });
 
     it("calls onEscalate handler when escalate is confirmed", async () => {
@@ -495,13 +486,9 @@ describe("ReviewActionsPanel", () => {
       const submitButton = await within(modal).findByRole("button", { name: /escalate/i });
       await user.click(submitButton);
 
-      // Allow extra time for async handlers
-      await waitFor(
-        () => {
-          expect(onEscalate).toHaveBeenCalledWith("Requires senior review", undefined);
-        },
-        { timeout: 10000 }
-      );
+      await waitFor(() => {
+        expect(onEscalate).toHaveBeenCalledWith("Requires senior review", undefined);
+      });
     });
 
     it("shows success message when assign succeeds", async () => {
@@ -516,7 +503,7 @@ describe("ReviewActionsPanel", () => {
 
       const modal = await screen.findByRole("dialog");
       const analystInput = within(modal).getByPlaceholderText(/enter analyst id/i);
-      await user.type(analystInput, "analyst-123");
+      fireEvent.change(analystInput, { target: { value: "analyst-123" } });
 
       const submitButton = await within(modal).findByRole("button", { name: /assign/i });
       await user.click(submitButton);
@@ -542,7 +529,7 @@ describe("ReviewActionsPanel", () => {
 
       const modal = await screen.findByRole("dialog");
       const analystInput = within(modal).getByPlaceholderText(/enter analyst id/i);
-      await user.type(analystInput, "analyst-123");
+      fireEvent.change(analystInput, { target: { value: "analyst-123" } });
 
       const submitButton = within(modal).getByRole("button", { name: /assign/i });
       await user.click(submitButton);
@@ -597,7 +584,7 @@ describe("ReviewActionsPanel", () => {
 
       const modal = await screen.findByRole("dialog");
       const analystInput = within(modal).getByPlaceholderText(/enter analyst id/i);
-      await user.type(analystInput, "analyst-123");
+      fireEvent.change(analystInput, { target: { value: "analyst-123" } });
 
       const submitButton = await within(modal).findByRole("button", { name: /assign/i });
       await user.click(submitButton);

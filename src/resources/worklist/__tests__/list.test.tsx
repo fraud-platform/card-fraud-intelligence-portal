@@ -10,7 +10,7 @@
  */
 
 import React from "react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent, within } from "@/test/utils";
 import WorklistList from "../list";
 import * as hooks from "@/hooks";
@@ -39,7 +39,9 @@ vi.mock("antd", async () => {
   const actual = await vi.importActual("antd");
 
   // Lightweight native-select mock to avoid AntD Select flakiness in JSDOM
-  const MockOption = ({ children }: any) => <option>{children}</option>;
+  const MockOption = ({ children, ...optionProps }: any) => (
+    <option {...optionProps}>{children}</option>
+  );
   const MockSelect = ({ children, value, onChange, ...rest }: any) => {
     // Map AntD's options to native options; support both Option children and options prop
     const optionsFromProp = rest.options
@@ -218,10 +220,6 @@ describe("WorklistList", () => {
     mockUseGo.mockReturnValue(mockGo);
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("Component Rendering", () => {
     it("renders without crashing", () => {
       const { container } = render(<WorklistList />);
@@ -391,16 +389,8 @@ describe("WorklistList", () => {
       });
 
       // Change status filter
-      const statusSelect = getFilters().getAllByRole("combobox")[0];
-      fireEvent.mouseDown(statusSelect);
-
-      // Select 'Pending' option (options are rendered in portal). Use findAllByText and pick the
-      // option element (there may be other elements with the same text, e.g., tags)
-      const pendingOptions = await screen.findAllByText("Pending");
-      const pendingOption =
-        pendingOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-        pendingOptions[0];
-      fireEvent.click(pendingOption);
+      const statusSelect = getFilters().getAllByRole("combobox")[0] as HTMLSelectElement;
+      fireEvent.change(statusSelect, { target: { value: "PENDING" } });
 
       // After state change, component re-renders and useWorklist is called with new filters
       await waitFor(() => {
@@ -417,16 +407,8 @@ describe("WorklistList", () => {
       });
 
       // Change risk filter
-      const riskSelect = getFilters().getByText("Risk Level");
-      fireEvent.mouseDown(riskSelect);
-
-      // Select 'Critical' option (options are rendered in portal). Use findAllByText and pick the
-      // option element (there may be tags or badges with the same text)
-      const criticalOptions = await screen.findAllByText("Critical");
-      const criticalOption =
-        criticalOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-        criticalOptions[0];
-      fireEvent.click(criticalOption);
+      const riskSelect = getFilters().getAllByRole("combobox")[2] as HTMLSelectElement;
+      fireEvent.change(riskSelect, { target: { value: "CRITICAL" } });
 
       await waitFor(() => {
         expect(mockUseWorklist).toHaveBeenCalled();
@@ -704,44 +686,28 @@ describe("WorklistList", () => {
     it("should update status filter state when option is selected", async () => {
       render(<WorklistList />);
 
-      const statusSelect = getFilters().getByText("Status");
+      const statusSelect = getFilters().getAllByRole("combobox")[0] as HTMLSelectElement;
       expect(statusSelect).toBeInTheDocument();
 
-      // Open dropdown
-      fireEvent.mouseDown(statusSelect);
+      fireEvent.change(statusSelect, { target: { value: "PENDING" } });
 
-      // Click on Pending option
-      const pendingOptions = await screen.findAllByText("Pending");
-      const pendingOption =
-        pendingOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-        pendingOptions[0];
-      fireEvent.click(pendingOption);
-
-      // The value should be updated (visible somewhere in the document)
       await waitFor(() => {
-        expect(screen.getAllByText("Pending").length).toBeGreaterThan(0);
+        const lastCall = mockUseWorklist.mock.calls.at(-1);
+        expect(lastCall?.[0]?.filters.status).toBe("PENDING");
       });
     });
 
     it("should update risk filter state when option is selected", async () => {
       render(<WorklistList />);
 
-      const riskSelect = getFilters().getByText("Risk Level");
+      const riskSelect = getFilters().getAllByRole("combobox")[2] as HTMLSelectElement;
       expect(riskSelect).toBeInTheDocument();
 
-      // Open dropdown
-      fireEvent.mouseDown(riskSelect);
-
-      // Click on Critical option
-      const criticalOptions = await screen.findAllByText("Critical");
-      const criticalOption =
-        criticalOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-        criticalOptions[0];
-      fireEvent.click(criticalOption);
+      fireEvent.change(riskSelect, { target: { value: "CRITICAL" } });
 
       await waitFor(() => {
-        // After selecting an option, the selected value should be visible
-        expect(screen.getAllByText("Critical").length).toBeGreaterThan(0);
+        const lastCall = mockUseWorklist.mock.calls.at(-1);
+        expect(lastCall?.[0]?.filters.risk_level_filter).toBe("CRITICAL");
       });
     });
 
@@ -762,47 +728,29 @@ describe("WorklistList", () => {
     it("should clear status filter when clear button is clicked", async () => {
       render(<WorklistList />);
 
-      const statusSelect = getFilters().getByText("Status");
+      const statusSelect = getFilters().getAllByRole("combobox")[0] as HTMLSelectElement;
+      fireEvent.change(statusSelect, { target: { value: "PENDING" } });
 
-      // Open dropdown and select an option
-      fireEvent.mouseDown(statusSelect);
-      const pendingOptions = await screen.findAllByText("Pending");
-      const pendingOption =
-        pendingOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-        pendingOptions[0];
-      fireEvent.click(pendingOption);
-
-      // Clear the selection by clicking clear icon
-      // Note: Ant Design Select with allowClear shows a clear icon
-      const clearIcon = statusSelect.parentElement?.querySelector(".ant-select-clear-icon");
-      if (clearIcon) {
-        fireEvent.click(clearIcon);
-      }
+      const clearButton = screen.getByRole("button", { name: /^clear$/i });
+      fireEvent.click(clearButton);
 
       await waitFor(() => {
-        const newStatusSelect = getFilters().getAllByRole("combobox")[0];
-        expect(newStatusSelect).toBeInTheDocument();
+        const lastCall = mockUseWorklist.mock.calls.at(-1);
+        expect(lastCall?.[0]?.filters.status).toBeUndefined();
       });
     });
 
     it("should cycle through all status options", async () => {
       render(<WorklistList />);
 
-      const statuses = ["Pending", "In Review", "Escalated"];
+      const statuses = [{ value: "PENDING" }, { value: "IN_REVIEW" }, { value: "ESCALATED" }];
 
       for (const status of statuses) {
-        const statusSelect = getFilters().getAllByRole("combobox")[0];
-        fireEvent.mouseDown(statusSelect);
-        const allOptions = await screen.findAllByText(status);
-        const option =
-          allOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-          allOptions[0];
-        fireEvent.click(option);
-
+        const statusSelect = getFilters().getAllByRole("combobox")[0] as HTMLSelectElement;
+        fireEvent.change(statusSelect, { target: { value: status.value } });
         await waitFor(() => {
-          // The selected status should be rendered somewhere in the document (either a tag or
-          // the select's selection item). Ensure at least one element with the selected text exists.
-          expect(screen.getAllByText(status).length).toBeGreaterThan(0);
+          const lastCall = mockUseWorklist.mock.calls.at(-1);
+          expect(lastCall?.[0]?.filters.status).toBe(status.value);
         });
       }
     });
@@ -810,19 +758,19 @@ describe("WorklistList", () => {
     it("should cycle through all risk level options", async () => {
       render(<WorklistList />);
 
-      const riskLevels = ["Critical", "High", "Medium", "Low"];
+      const riskLevels = [
+        { value: "CRITICAL" },
+        { value: "HIGH" },
+        { value: "MEDIUM" },
+        { value: "LOW" },
+      ];
 
       for (const risk of riskLevels) {
-        const riskSelect = getFilters().getAllByRole("combobox")[2];
-        fireEvent.mouseDown(riskSelect);
-        const allOptions = await screen.findAllByText(risk);
-        const option =
-          allOptions.find((el) => el.className.includes("ant-select-item-option-content")) ||
-          allOptions[0];
-        fireEvent.click(option);
-
+        const riskSelect = getFilters().getAllByRole("combobox")[2] as HTMLSelectElement;
+        fireEvent.change(riskSelect, { target: { value: risk.value } });
         await waitFor(() => {
-          expect(screen.getAllByText(risk).length).toBeGreaterThan(0);
+          const lastCall = mockUseWorklist.mock.calls.at(-1);
+          expect(lastCall?.[0]?.filters.risk_level_filter).toBe(risk.value);
         });
       }
     });

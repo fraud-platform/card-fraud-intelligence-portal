@@ -13,6 +13,13 @@ import { AuditLogStore } from "./data/auditLogs";
 import { User, AuthResponse } from "../types/domain";
 import { ApprovalStatus, RuleStatus, RuleSetStatus, RulesetEnvironment } from "../types/enums";
 
+const shouldLogMockInitialization = process.env.MSW_LOG_INIT === "true";
+const configuredDelayMs = Number(
+  process.env.MSW_DELAY_MS ?? (process.env.NODE_ENV === "test" ? "0" : "300")
+);
+const mockDelayMs =
+  Number.isFinite(configuredDelayMs) && configuredDelayMs >= 0 ? configuredDelayMs : 0;
+
 // Initialize stores (stores are auto-populated with seed data from their constructors)
 const ruleFieldStore = new RuleFieldStore();
 const ruleStore = new RuleStore();
@@ -31,13 +38,15 @@ export function verifyMockDataInitialization(): void {
   const approvalCount = approvalStore.getAll().length;
   const auditLogCount = auditLogStore.getAll().length;
 
-  console.warn("[MSW] Mock Data Initialized:", {
-    ruleFields: fieldCount,
-    rules: ruleCount,
-    rulesets: rulesetCount,
-    approvals: approvalCount,
-    auditLogs: auditLogCount,
-  });
+  if (shouldLogMockInitialization) {
+    console.warn("[MSW] Mock Data Initialized:", {
+      ruleFields: fieldCount,
+      rules: ruleCount,
+      rulesets: rulesetCount,
+      approvals: approvalCount,
+      auditLogs: auditLogCount,
+    });
+  }
 
   // Warn if any store is empty (should not happen with proper seed data)
   if (fieldCount === 0) console.error("[MSW] WARNING: RuleFieldStore is empty!");
@@ -88,7 +97,7 @@ const mockUsers: Record<string, User> = {
 let currentUser: User = defaultMakerUser;
 
 // Helper: Add artificial delay for realism
-const addDelay = () => delay(300);
+const addDelay = () => delay(mockDelayMs);
 
 // Helper: Parse keyset pagination params
 export const parseKeysetPagination = (url: URL) => {

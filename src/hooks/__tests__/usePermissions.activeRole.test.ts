@@ -11,13 +11,13 @@ vi.mock("@/app/auth0Client");
 
 describe("usePermissions - active role and scope precedence", () => {
   beforeEach(() => {
+    // Clear call counts first, then apply per-test mock behavior
+    vi.clearAllMocks();
     // Default: dev mode (Auth0 disabled)
     vi.mocked(auth0.isAuth0Enabled).mockReturnValue(false);
     vi.mocked(auth0.getAccessTokenScopes).mockResolvedValue([] as any);
     // Clear active role
     setActiveUserRole(null);
-    // Keep test mocks in place; clear call counts but do not restore implementations
-    vi.clearAllMocks();
   });
 
   afterEach(() => {

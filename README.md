@@ -43,9 +43,24 @@ Shared local ports:
 pnpm lint
 pnpm type-check
 pnpm test:unit
+pnpm test:unit:shard -- --shard=1/4
 pnpm test:e2e -- --project=chromium
 pnpm build
 ```
+
+## Unit Test Runtime Tuning
+
+- `VITEST_POOL=threads|forks` (default: `threads`)
+- `VITEST_MAX_WORKERS=<n>` (default: CPU - 1, capped at 6)
+- `VITEST_FILE_PARALLELISM=true|false` (default: `true`)
+- `VITEST_ISOLATE=true|false` (default: `true`)
+- `VITEST_SILENT=true|false` (default: `true`)
+- `VITEST_REPORTER=dot|default|verbose|json` (default: `dot` locally, `default` in CI)
+- `VITEST_SUPPRESS_NOISE=true|false` (default: `true`)
+- `VITEST_MSW=true|false` (default: `true`)
+- `VITEST_STRICT_MSW=true|false` (default: `false`, uses `bypass` for unhandled requests)
+- `MSW_DELAY_MS=<n>` (default: `0` in tests, `300` outside tests)
+- `MSW_LOG_INIT=true|false` (default: `false`)
 
 ## Runtime Modes
 

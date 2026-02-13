@@ -22,8 +22,31 @@ pnpm test:e2e -- --project=chromium
 
 - `pnpm test:unit`
 - `pnpm test:unit:fast`
+- `pnpm test:unit:shard -- --shard=1/4`
 - `pnpm test:watch`
 - `pnpm test:coverage`
+
+## Vitest Runtime Tuning
+
+Use these env vars when tuning local unit-test runtime:
+
+- `VITEST_POOL=threads|forks` (default: `threads`)
+- `VITEST_MAX_WORKERS=<n>` (default: CPU - 1, capped at 6)
+- `VITEST_FILE_PARALLELISM=true|false` (default: `true`)
+- `VITEST_ISOLATE=true|false` (default: `true`)
+- `VITEST_SILENT=true|false` (default: `true`)
+- `VITEST_REPORTER=dot|default|verbose|json` (default: `dot` locally, `default` in CI)
+- `VITEST_SUPPRESS_NOISE=true|false` (default: `true`)
+- `VITEST_MSW=true|false` (default: `true`)
+- `VITEST_STRICT_MSW=true|false` (default: `false`)
+- `MSW_DELAY_MS=<n>` (default: `0` in tests, `300` outside tests)
+- `MSW_LOG_INIT=true|false` (default: `false`)
+
+For shard runs, pass one of:
+
+- `--shard=<index>/<total>` CLI argument
+- `VITEST_SHARD=<index>/<total>`
+- `VITEST_SHARD_INDEX=<index>` with `VITEST_SHARD_TOTAL=<total>`
 
 ## E2E Commands
 

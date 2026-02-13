@@ -3,6 +3,21 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import os from "os";
 
+const cpuCount = Math.max(1, os.cpus().length);
+const defaultWorkerCount = Math.max(1, Math.min(6, cpuCount - 1));
+const configuredPool = process.env.VITEST_POOL;
+const pool =
+  configuredPool === "threads" || configuredPool === "forks" ? configuredPool : "threads";
+const silent = process.env.VITEST_SILENT === "false" ? false : true;
+const reporter = process.env.VITEST_REPORTER ?? (process.env.CI ? "default" : "dot");
+const configuredWorkers = Number(process.env.VITEST_MAX_WORKERS ?? defaultWorkerCount);
+const maxWorkers =
+  Number.isFinite(configuredWorkers) && configuredWorkers >= 1
+    ? Math.floor(configuredWorkers)
+    : defaultWorkerCount;
+const fileParallelism = process.env.VITEST_FILE_PARALLELISM === "false" ? false : true;
+const isolate = process.env.VITEST_ISOLATE === "false" ? false : true;
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -107,18 +122,17 @@ export default defineConfig({
 
     // PERFORMANCE OPTIMIZATIONS
 
-    // Use 'forks' pool for better performance - threads had worker timeout issues
-    pool: "forks",
+    // Threads significantly reduce startup overhead in this suite.
+    // Use VITEST_POOL=forks as a fallback for environment-specific instability.
+    pool,
 
-    // Worker count - scale with available CPUs (defaults to cpu_count - 1), capped between 1 and 8
-    maxWorkers: Number(
-      process.env.VITEST_MAX_WORKERS ??
-        String(Math.max(1, Math.min(4, Math.max(1, os.cpus().length - 1))))
-    ),
+    // Worker count - tuned for UI-heavy suites to avoid host contention.
+    // Override with VITEST_MAX_WORKERS for local profiling.
+    maxWorkers,
     minWorkers: 1,
 
     // File parallelism - can disable for complex test suites with heavy setup
-    fileParallelism: true,
+    fileParallelism,
 
     // Test timeout - optimized for faster feedback
     testTimeout: 30000,
@@ -136,13 +150,14 @@ export default defineConfig({
 
     // Enable test isolation - required for DOM tests to prevent state leakage
     // Keeping this true ensures tests don't interfere with each other
-    isolate: true,
+    isolate,
 
     // Vite cache configuration - helps with repeated runs (Vitest 4+ uses Vite's cacheDir)
     // Cache is automatically written to cacheDir/vitest
 
     // Log configuration - reduce logging overhead
-    reporters: ["default"],
+    silent,
+    reporters: [reporter],
     outputFile: undefined,
   },
 });

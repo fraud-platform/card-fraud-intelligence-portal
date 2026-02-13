@@ -3,15 +3,31 @@ import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { server } from "./server";
 
-// Start server before all tests
-beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
+const mswEnabled = process.env.VITEST_MSW === "false" ? false : true;
+const strictMswUnhandledRequests = process.env.VITEST_STRICT_MSW === "true" ? true : false;
+const mswUnhandledRequestMode = strictMswUnhandledRequests ? "warn" : "bypass";
+let hasRuntimeMswOverrides = false;
 
-//  Close server after all tests
-afterAll(() => server.close());
+if (mswEnabled) {
+  const originalServerUse = server.use.bind(server) as typeof server.use;
+  server.use = ((...handlers: Parameters<typeof server.use>) => {
+    hasRuntimeMswOverrides = true;
+    return originalServerUse(...handlers);
+  }) as typeof server.use;
 
-// Reset handlers after each test `important for test isolation`
+  // Start server before all tests
+  beforeAll(() => server.listen({ onUnhandledRequest: mswUnhandledRequestMode }));
+
+  //  Close server after all tests
+  afterAll(() => server.close());
+}
+
+// Reset handlers after each test only when runtime overrides are used
 afterEach(() => {
-  server.resetHandlers();
+  if (mswEnabled && hasRuntimeMswOverrides) {
+    server.resetHandlers();
+    hasRuntimeMswOverrides = false;
+  }
   cleanup();
 });
 
@@ -21,10 +37,6 @@ afterEach(() => {
  * Uses minimal mocks for @refinedev packages
  * Only mocks specific components that cause issues in tests
  */
-
-afterEach(() => {
-  cleanup();
-});
 
 // ============================================================
 // BROWSER API MOCKS
@@ -324,31 +336,55 @@ vi.mock("@refinedev/antd", async () => {
 // CONSOLE FILTERING
 // ============================================================
 
-const originalConsoleError = console.error.bind(console);
-console.error = (...args: any[]) => {
-  const msg = args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ");
-  const suppressedErrors = [
-    "Not implemented: Window's getComputedStyle() method",
-    "Received `false` for a non-boolean attribute `replace`",
-  ];
-  if (suppressedErrors.some((s) => msg.includes(s))) {
-    return;
-  }
-  return originalConsoleError(...args);
-};
+const suppressConsoleNoise = process.env.VITEST_SUPPRESS_NOISE === "false" ? false : true;
+const suppressedConsolePatterns = [
+  /Not implemented: Window's getComputedStyle\(\) method/i,
+  /not wrapped in act\(\.\.\.\)/i,
+  /current testing environment is not configured to support act/i,
+  /Received `false` for a non-boolean attribute `replace`/i,
+  /`value` prop on `select` should not be null/i,
+  /does not recognize the `allowClear` prop/i,
+  /does not recognize the `suffixIcon` prop/i,
+];
 
-const originalConsoleWarn = console.warn.bind(console);
-console.warn = (...args: any[]) => {
-  const msg = args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ");
-  const suppressedWarnings = [
-    "Warning: The current testing environment is not configured to support act(...)",
-    "Received `false` for a non-boolean attribute `replace`",
-  ];
-  if (suppressedWarnings.some((s) => msg.includes(s))) {
-    return;
-  }
-  return originalConsoleWarn(...args);
-};
+const toConsoleMessage = (args: unknown[]): string =>
+  args
+    .map((arg) => {
+      if (typeof arg === "string") return arg;
+      if (arg instanceof Error) return `${arg.name}: ${arg.message}`;
+      if (arg && typeof arg === "object" && "message" in arg) {
+        const candidate = (arg as { message?: unknown }).message;
+        if (typeof candidate === "string") {
+          return candidate;
+        }
+      }
+      return String(arg);
+    })
+    .join(" ");
+
+if (suppressConsoleNoise) {
+  const originalConsoleError = console.error.bind(console);
+  const originalConsoleWarn = console.warn.bind(console);
+
+  const shouldSuppress = (args: unknown[]): boolean => {
+    const msg = toConsoleMessage(args);
+    return suppressedConsolePatterns.some((pattern) => pattern.test(msg));
+  };
+
+  console.error = (...args: any[]) => {
+    if (shouldSuppress(args)) {
+      return;
+    }
+    return originalConsoleError(...args);
+  };
+
+  console.warn = (...args: any[]) => {
+    if (shouldSuppress(args)) {
+      return;
+    }
+    return originalConsoleWarn(...args);
+  };
+}
 
 const originalGetComputedStyle = globalThis.getComputedStyle.bind(globalThis);
 globalThis.getComputedStyle = (elt: Element, pseudoElt?: string | null) => {

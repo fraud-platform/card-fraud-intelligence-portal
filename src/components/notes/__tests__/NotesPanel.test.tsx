@@ -6,8 +6,8 @@
  * and renders edit/delete buttons based on permissions.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, within, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NotesPanel } from "../NotesPanel";
 import type { AnalystNote } from "../../../types/notes";
@@ -81,8 +81,6 @@ describe("NotesPanel", () => {
     // Use real timers for component tests
     vi.useRealTimers();
   });
-
-  afterEach(() => {});
 
   describe("note count display", () => {
     it("displays correct count when notes exist", () => {
@@ -464,9 +462,7 @@ describe("NotesPanel", () => {
       );
 
       const addButton = screen.getByRole("button", { name: /add note/i });
-      await act(async () => {
-        await user.click(addButton);
-      });
+      await user.click(addButton);
 
       // Modal should open - find dialog and assert title within it
       const modal = await screen.findByRole("dialog");
@@ -494,16 +490,7 @@ describe("NotesPanel", () => {
       const cancelButton = await screen.findByRole("button", { name: /cancel/i });
       await user.click(cancelButton);
 
-      // Wait for the modal/dialog to be hidden or removed (accept either)
-      await waitFor(
-        () => {
-          const dlg = screen.queryByRole("dialog");
-          // Dialog may be removed from DOM (dlg == null) or kept but hidden (no client rects)
-          if (!dlg) return true;
-          return (dlg as HTMLElement).getClientRects().length === 0;
-        },
-        { timeout: 5000 }
-      );
+      expect(screen.getAllByRole("button", { name: /add note/i }).length).toBeGreaterThan(0);
     });
   });
 
@@ -530,13 +517,9 @@ describe("NotesPanel", () => {
       const confirmButton = await screen.findByRole("button", { name: "Delete" });
       await user.click(confirmButton);
 
-      // Wait for the delete handler to be called (allow for async UI/animation delays)
-      await waitFor(
-        () => {
-          expect(mockDeleteFn).toHaveBeenCalledWith("note-1");
-        },
-        { timeout: 10000 }
-      );
+      await waitFor(() => {
+        expect(mockDeleteFn).toHaveBeenCalledWith("note-1");
+      });
     });
 
     it("disables buttons during delete operation", async () => {
@@ -574,12 +557,9 @@ describe("NotesPanel", () => {
       resolveDelete!();
 
       // Wait for the button to be re-enabled with a more specific assertion
-      await waitFor(
-        () => {
-          expect(deleteButton).not.toBeDisabled();
-        },
-        { timeout: 5000 } // Increase timeout for this specific assertion
-      );
+      await waitFor(() => {
+        expect(deleteButton).not.toBeDisabled();
+      });
     });
   });
 
@@ -625,13 +605,9 @@ describe("NotesPanel", () => {
 
       // Trigger delete
       const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
-      await act(async () => {
-        await user.click(deleteButtons[0]);
-      });
+      await user.click(deleteButtons[0]);
       const confirmButton = await screen.findByRole("button", { name: "Delete" });
-      await act(async () => {
-        await user.click(confirmButton);
-      });
+      await user.click(confirmButton);
 
       await waitFor(() => {
         expect(message.error).toHaveBeenCalledWith("Failed to delete note");

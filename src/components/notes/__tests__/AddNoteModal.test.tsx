@@ -9,8 +9,8 @@
  * - Form submission
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, within, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // Test-scoped mock for AntD Select to make selection deterministic in JSDOM
@@ -65,8 +65,6 @@ describe("AddNoteModal", () => {
     // Use real timers for component tests
     vi.useRealTimers();
   });
-
-  afterEach(() => {});
 
   describe("modal rendering", () => {
     it("does not render when open is false", () => {
@@ -218,16 +216,12 @@ describe("AddNoteModal", () => {
       expect(screen.getByText(/0 \/ 2000/)).toBeInTheDocument();
     });
 
-    it("updates character count as user types", async () => {
-      const user = userEvent.setup();
+    it("updates character count as user types", () => {
       render(<AddNoteModal open={true} onCancel={onCancel} onSubmit={onSubmit} />);
 
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Hello world");
-
-      await waitFor(() => {
-        expect(screen.getByText(/11 \/ 2000/)).toBeInTheDocument();
-      });
+      fireEvent.change(textarea, { target: { value: "Hello world" } });
+      expect(screen.getByText(/11 \/ 2000/)).toBeInTheDocument();
     });
 
     it("enforces max length of 2000 characters", async () => {
@@ -237,13 +231,9 @@ describe("AddNoteModal", () => {
       const longText = "a".repeat(2000);
 
       // Use fireEvent to set value directly to avoid slow typing
-      const { fireEvent } = await import("@testing-library/react");
       fireEvent.change(textarea, { target: { value: longText } });
-
-      await waitFor(() => {
-        expect(textarea).toHaveValue(longText);
-        expect(screen.getByText(/2000 \/ 2000/)).toBeInTheDocument();
-      });
+      expect(textarea).toHaveValue(longText);
+      expect(screen.getByText(/2000 \/ 2000/)).toBeInTheDocument();
     });
   });
 
@@ -336,15 +326,11 @@ describe("AddNoteModal", () => {
       const textarea = screen.getByRole("textbox");
 
       // Enter less than 5 characters
-      await act(async () => {
-        await user.type(textarea, "abc");
-      });
+      fireEvent.change(textarea, { target: { value: "abc" } });
 
       // Try to submit
       const okButton = screen.getByRole("button", { name: "Add Note" });
-      await act(async () => {
-        await user.click(okButton);
-      });
+      await user.click(okButton);
 
       // Should show validation error (message may vary in exact wording)
       await waitFor(() => {
@@ -357,7 +343,7 @@ describe("AddNoteModal", () => {
       render(<AddNoteModal open={true} onCancel={onCancel} onSubmit={onSubmit} />);
 
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "abcde");
+      fireEvent.change(textarea, { target: { value: "abcde" } });
 
       // Try to submit - should not show minimum length error
       const okButton = screen.getByRole("button", { name: "Add Note" });
@@ -404,7 +390,7 @@ describe("AddNoteModal", () => {
 
       // Fill in the form
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "This is a valid note content");
+      fireEvent.change(textarea, { target: { value: "This is a valid note content" } });
 
       // Submit
       const okButton = screen.getByRole("button", { name: "Add Note" });
@@ -441,7 +427,7 @@ describe("AddNoteModal", () => {
 
       // Fill in content
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Private note content here");
+      fireEvent.change(textarea, { target: { value: "Private note content here" } });
 
       // Submit
       const okButton = screen.getByRole("button", { name: "Add Note" });
@@ -470,7 +456,7 @@ describe("AddNoteModal", () => {
 
       // Fill in content
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Fraud has been confirmed");
+      fireEvent.change(textarea, { target: { value: "Fraud has been confirmed" } });
 
       // Submit
       const okButton = screen.getByRole("button", { name: "Add Note" });
@@ -502,7 +488,7 @@ describe("AddNoteModal", () => {
 
       // Fill in the form
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "This is a note");
+      fireEvent.change(textarea, { target: { value: "This is a note" } });
 
       // Check the checkbox
       const checkbox = screen.getByRole("checkbox");
@@ -551,7 +537,7 @@ describe("AddNoteModal", () => {
 
       // Fill in some data
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Some content");
+      fireEvent.change(textarea, { target: { value: "Some content" } });
 
       const checkbox = screen.getByRole("checkbox");
       await user.click(checkbox);
@@ -620,7 +606,7 @@ describe("AddNoteModal", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Fraud confirmed note");
+      fireEvent.change(textarea, { target: { value: "Fraud confirmed note" } });
 
       const okButton = screen.getByRole("button", { name: "Add Note" });
       await user.click(okButton);
@@ -646,7 +632,7 @@ describe("AddNoteModal", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Escalation note");
+      fireEvent.change(textarea, { target: { value: "Escalation note" } });
 
       const okButton = screen.getByRole("button", { name: "Add Note" });
       await user.click(okButton);
@@ -672,7 +658,7 @@ describe("AddNoteModal", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      await user.type(textarea, "Resolution note");
+      fireEvent.change(textarea, { target: { value: "Resolution note" } });
 
       const okButton = screen.getByRole("button", { name: "Add Note" });
       await user.click(okButton);
