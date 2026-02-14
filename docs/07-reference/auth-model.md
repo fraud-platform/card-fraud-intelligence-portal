@@ -26,39 +26,39 @@ This document defines the authoritative authentication and authorization model f
 
 ## 2. Platform Components
 
-| Project | Type | Responsibility |
-|---------|------|----------------|
-| `card-fraud-rule-management` | FastAPI | Rule authoring, governance, maker-checker workflow |
-| `card-fraud-rule-engine` | Quarkus | Runtime rule execution (machine only) |
-| `card-fraud-transaction-management` | FastAPI | Fraud operations & case handling |
-| `card-fraud-intelligence-portal` | React SPA | Unified human UI |
+| Project                                                         | Type      | Responsibility                                     |
+| --------------------------------------------------------------- | --------- | -------------------------------------------------- |
+| `card-fraud-rule-management`                                    | FastAPI   | Rule authoring, governance, maker-checker workflow |
+| `card-fraud-rule-engine-auth/card-fraud-rule-engine-monitoring` | Quarkus   | Runtime rule execution (machine only)              |
+| `card-fraud-transaction-management`                             | FastAPI   | Fraud operations & case handling                   |
+| `card-fraud-intelligence-portal`                                | React SPA | Unified human UI                                   |
 
 ---
 
 ## 3. Identity Provider
 
-| Setting | Value |
-|---------|-------|
-| **IdP** | Auth0 |
-| **Tenant** | `your-tenant.us.auth0.com` |
-| **Environments** | local, test, prod |
-| **RBAC** | Enabled |
-| **Permissions in Token** | Yes |
+| Setting                  | Value                      |
+| ------------------------ | -------------------------- |
+| **IdP**                  | Auth0                      |
+| **Tenant**               | `your-tenant.us.auth0.com` |
+| **Environments**         | local, test, prod          |
+| **RBAC**                 | Enabled                    |
+| **Permissions in Token** | Yes                        |
 
 ### API Audiences (Separate Per Service)
 
-| API | Audience |
-|-----|----------|
-| Rule Management | `https://fraud-rule-management-api` |
-| Rule Engine | `https://fraud-rule-engine-api` |
+| API                    | Audience                                   |
+| ---------------------- | ------------------------------------------ |
+| Rule Management        | `https://fraud-rule-management-api`        |
+| Rule Engine            | `https://fraud-rule-engine-api`            |
 | Transaction Management | `https://fraud-transaction-management-api` |
 
 ### Auth Model by User Type
 
-| User Type | Auth Method |
-|-----------|-------------|
-| Human users | Roles + Permissions (via PKCE flow) |
-| Machine users | Client Credentials + Scopes |
+| User Type     | Auth Method                         |
+| ------------- | ----------------------------------- |
+| Human users   | Roles + Permissions (via PKCE flow) |
+| Machine users | Client Credentials + Scopes         |
 
 ---
 
@@ -66,27 +66,28 @@ This document defines the authoritative authentication and authorization model f
 
 ### 4.1 Platform Level
 
-| Role | Purpose | Notes |
-|------|---------|-------|
+| Role             | Purpose                         | Notes                  |
+| ---------------- | ------------------------------- | ---------------------- |
 | `PLATFORM_ADMIN` | IAM, tenant config, break-glass | Very restricted access |
 
 ### 4.2 Rule Governance (Rule Management API)
 
-| Role | Purpose |
-|------|---------|
-| `RULE_MAKER` | Create & edit rule drafts |
-| `RULE_CHECKER` | Review & approve rules |
-| `RULE_VIEWER` | Read-only access (audit/compliance) |
+| Role           | Purpose                             |
+| -------------- | ----------------------------------- |
+| `RULE_MAKER`   | Create & edit rule drafts           |
+| `RULE_CHECKER` | Review & approve rules              |
+| `RULE_VIEWER`  | Read-only access (audit/compliance) |
 
 **Important Notes:**
+
 - A user may have both `RULE_MAKER` and `RULE_CHECKER`
 - Backend **must** enforce no self-approval (SoD)
 
 ### 4.3 Fraud Operations (Transaction Management API)
 
-| Role | Purpose |
-|------|---------|
-| `FRAUD_ANALYST` | Analyze alerts, recommend action |
+| Role               | Purpose                             |
+| ------------------ | ----------------------------------- |
+| `FRAUD_ANALYST`    | Analyze alerts, recommend action    |
 | `FRAUD_SUPERVISOR` | Final decision & override authority |
 
 ---
@@ -95,26 +96,26 @@ This document defines the authoritative authentication and authorization model f
 
 ### 5.1 Rule Governance Permissions
 
-| Permission | Meaning |
-|------------|---------|
-| `rule:create` | Create new rules / rulesets |
-| `rule:update` | Modify drafts |
-| `rule:submit` | Submit for approval |
-| `rule:approve` | Approve rules |
-| `rule:reject` | Reject rules |
-| `rule:read` | View rules |
+| Permission     | Meaning                     |
+| -------------- | --------------------------- |
+| `rule:create`  | Create new rules / rulesets |
+| `rule:update`  | Modify drafts               |
+| `rule:submit`  | Submit for approval         |
+| `rule:approve` | Approve rules               |
+| `rule:reject`  | Reject rules                |
+| `rule:read`    | View rules                  |
 
 ### 5.2 Fraud Operations Permissions
 
-| Permission | Meaning |
-|------------|---------|
-| `txn:view` | View transactions |
-| `txn:comment` | Add analyst comments |
-| `txn:flag` | Flag suspicious activity |
-| `txn:recommend` | Recommend action |
-| `txn:approve` | Approve transaction |
-| `txn:block` | Block transaction |
-| `txn:override` | Override prior decision |
+| Permission      | Meaning                  |
+| --------------- | ------------------------ |
+| `txn:view`      | View transactions        |
+| `txn:comment`   | Add analyst comments     |
+| `txn:flag`      | Flag suspicious activity |
+| `txn:recommend` | Recommend action         |
+| `txn:approve`   | Approve transaction      |
+| `txn:block`     | Block transaction        |
+| `txn:override`  | Override prior decision  |
 
 ---
 
@@ -122,19 +123,19 @@ This document defines the authoritative authentication and authorization model f
 
 ### Rule Governance
 
-| Role | Permissions |
-|------|-------------|
-| `PLATFORM_ADMIN` | All permissions |
-| `RULE_MAKER` | `rule:create`, `rule:update`, `rule:submit`, `rule:read` |
-| `RULE_CHECKER` | `rule:approve`, `rule:reject`, `rule:read` |
-| `RULE_VIEWER` | `rule:read` |
+| Role             | Permissions                                              |
+| ---------------- | -------------------------------------------------------- |
+| `PLATFORM_ADMIN` | All permissions                                          |
+| `RULE_MAKER`     | `rule:create`, `rule:update`, `rule:submit`, `rule:read` |
+| `RULE_CHECKER`   | `rule:approve`, `rule:reject`, `rule:read`               |
+| `RULE_VIEWER`    | `rule:read`                                              |
 
 ### Fraud Operations
 
-| Role | Permissions |
-|------|-------------|
-| `PLATFORM_ADMIN` | All permissions |
-| `FRAUD_ANALYST` | `txn:view`, `txn:comment`, `txn:flag`, `txn:recommend` |
+| Role               | Permissions                                            |
+| ------------------ | ------------------------------------------------------ |
+| `PLATFORM_ADMIN`   | All permissions                                        |
+| `FRAUD_ANALYST`    | `txn:view`, `txn:comment`, `txn:flag`, `txn:recommend` |
 | `FRAUD_SUPERVISOR` | `txn:view`, `txn:approve`, `txn:block`, `txn:override` |
 
 ---
@@ -147,16 +148,17 @@ This document defines the authoritative authentication and authorization model f
 
 ### M2M Clients
 
-| Client | Purpose | Auth Model |
-|--------|---------|------------|
-| Rule Engine M2M | Runtime rule execution | Client Credentials + scopes |
-| Transaction Ingestion M2M | Kafka/API ingestion | Client Credentials + scopes |
-| Rule Management M2M | Testing & automation | Client Credentials + scopes |
-| Transaction Management M2M | Testing & automation | Client Credentials + scopes |
+| Client                     | Purpose                | Auth Model                  |
+| -------------------------- | ---------------------- | --------------------------- |
+| Rule Engine M2M            | Runtime rule execution | Client Credentials + scopes |
+| Transaction Ingestion M2M  | Kafka/API ingestion    | Client Credentials + scopes |
+| Rule Management M2M        | Testing & automation   | Client Credentials + scopes |
+| Transaction Management M2M | Testing & automation   | Client Credentials + scopes |
 
 ### M2M Scopes by API
 
 **Rule Engine API:**
+
 ```
 execute:rules
 read:results
@@ -165,6 +167,7 @@ read:metrics
 ```
 
 **Rule Management API:**
+
 ```
 rule:create
 rule:update
@@ -175,6 +178,7 @@ rule:read
 ```
 
 **Transaction Management API:**
+
 ```
 txn:view
 txn:comment
@@ -196,17 +200,8 @@ txn:override
   "sub": "auth0|user123",
   "iss": "https://your-tenant.us.auth0.com/",
   "aud": "https://fraud-rule-management-api",
-  "https://fraud-rule-management-api/roles": [
-    "RULE_MAKER",
-    "RULE_CHECKER"
-  ],
-  "permissions": [
-    "rule:create",
-    "rule:update",
-    "rule:submit",
-    "rule:approve",
-    "rule:read"
-  ],
+  "https://fraud-rule-management-api/roles": ["RULE_MAKER", "RULE_CHECKER"],
+  "permissions": ["rule:create", "rule:update", "rule:submit", "rule:approve", "rule:read"],
   "exp": 1737244800
 }
 ```
@@ -226,14 +221,14 @@ txn:override
 
 ### 8.3 Token Claims Reference
 
-| Claim | Human Token | M2M Token |
-|-------|-------------|-----------|
-| `sub` | User ID (`auth0\|xxx`) | Client ID (`xxx@clients`) |
-| `aud` | API audience | API audience |
-| `roles` | `{audience}/roles` claim | Not present |
-| `permissions` | Array of permissions | Not present |
-| `scope` | Not present | Space-separated scopes |
-| `gty` | Not present | `client-credentials` |
+| Claim         | Human Token              | M2M Token                 |
+| ------------- | ------------------------ | ------------------------- |
+| `sub`         | User ID (`auth0\|xxx`)   | Client ID (`xxx@clients`) |
+| `aud`         | API audience             | API audience              |
+| `roles`       | `{audience}/roles` claim | Not present               |
+| `permissions` | Array of permissions     | Not present               |
+| `scope`       | Not present              | Space-separated scopes    |
+| `gty`         | Not present              | `client-credentials`      |
 
 ---
 
@@ -257,20 +252,21 @@ txn:override
 
 ### 9.2 Role Assignment Matrix
 
-| Job Function | Roles to Assign |
-|--------------|-----------------|
-| Fraud Rule Author | `RULE_MAKER` |
-| Senior Rule Author (can also approve) | `RULE_MAKER`, `RULE_CHECKER` |
-| Rule Approver (review only) | `RULE_CHECKER` |
-| Compliance Auditor | `RULE_VIEWER` |
-| Fraud Analyst | `FRAUD_ANALYST` |
-| Fraud Team Lead | `FRAUD_ANALYST`, `FRAUD_SUPERVISOR` |
-| Fraud Operations Manager | `FRAUD_SUPERVISOR` |
-| Platform Administrator | `PLATFORM_ADMIN` |
+| Job Function                          | Roles to Assign                     |
+| ------------------------------------- | ----------------------------------- |
+| Fraud Rule Author                     | `RULE_MAKER`                        |
+| Senior Rule Author (can also approve) | `RULE_MAKER`, `RULE_CHECKER`        |
+| Rule Approver (review only)           | `RULE_CHECKER`                      |
+| Compliance Auditor                    | `RULE_VIEWER`                       |
+| Fraud Analyst                         | `FRAUD_ANALYST`                     |
+| Fraud Team Lead                       | `FRAUD_ANALYST`, `FRAUD_SUPERVISOR` |
+| Fraud Operations Manager              | `FRAUD_SUPERVISOR`                  |
+| Platform Administrator                | `PLATFORM_ADMIN`                    |
 
 ### 9.3 Auth0 Dashboard Steps
 
 1. **Navigate to Users:**
+
    ```
    Auth0 Dashboard → User Management → Users
    ```
@@ -280,6 +276,7 @@ txn:override
    - Click on user to open details
 
 3. **Assign Roles:**
+
    ```
    User Details → Roles tab → Assign Roles → Select roles → Assign
    ```
@@ -314,14 +311,14 @@ curl --request POST \
 
 Each project has dedicated test users for Playwright/E2E testing:
 
-| Test User | Email | Roles | Used By |
-|-----------|-------|-------|---------|
-| `test-platform-admin` | `test-platform-admin@fraud-platform.test` | `PLATFORM_ADMIN` | All projects |
-| `test-rule-maker` | `test-rule-maker@fraud-platform.test` | `RULE_MAKER` | rule-management, portal |
-| `test-rule-checker` | `test-rule-checker@fraud-platform.test` | `RULE_CHECKER` | rule-management, portal |
-| `test-rule-maker-checker` | `test-rule-maker-checker@fraud-platform.test` | `RULE_MAKER`, `RULE_CHECKER` | rule-management, portal |
-| `test-fraud-analyst` | `test-fraud-analyst@fraud-platform.test` | `FRAUD_ANALYST` | transaction-management, portal |
-| `test-fraud-supervisor` | `test-fraud-supervisor@fraud-platform.test` | `FRAUD_SUPERVISOR` | transaction-management, portal |
+| Test User                 | Email                                         | Roles                        | Used By                        |
+| ------------------------- | --------------------------------------------- | ---------------------------- | ------------------------------ |
+| `test-platform-admin`     | `test-platform-admin@fraud-platform.test`     | `PLATFORM_ADMIN`             | All projects                   |
+| `test-rule-maker`         | `test-rule-maker@fraud-platform.test`         | `RULE_MAKER`                 | rule-management, portal        |
+| `test-rule-checker`       | `test-rule-checker@fraud-platform.test`       | `RULE_CHECKER`               | rule-management, portal        |
+| `test-rule-maker-checker` | `test-rule-maker-checker@fraud-platform.test` | `RULE_MAKER`, `RULE_CHECKER` | rule-management, portal        |
+| `test-fraud-analyst`      | `test-fraud-analyst@fraud-platform.test`      | `FRAUD_ANALYST`              | transaction-management, portal |
+| `test-fraud-supervisor`   | `test-fraud-supervisor@fraud-platform.test`   | `FRAUD_SUPERVISOR`           | transaction-management, portal |
 
 ### 10.2 Test User Credentials
 
@@ -367,7 +364,7 @@ TEST_USERS = [
 
 ```typescript
 // playwright/auth.setup.ts
-import { test as setup } from '@playwright/test';
+import { test as setup } from "@playwright/test";
 
 const testUsers = {
   ruleMaker: {
@@ -381,15 +378,15 @@ const testUsers = {
   // ... etc
 };
 
-setup('authenticate as rule maker', async ({ page }) => {
-  await page.goto('/login');
+setup("authenticate as rule maker", async ({ page }) => {
+  await page.goto("/login");
   await page.fill('[name="email"]', testUsers.ruleMaker.email);
   await page.fill('[name="password"]', testUsers.ruleMaker.password);
   await page.click('[type="submit"]');
-  await page.waitForURL('/dashboard');
+  await page.waitForURL("/dashboard");
 
   // Save auth state
-  await page.context().storageState({ path: '.auth/rule-maker.json' });
+  await page.context().storageState({ path: ".auth/rule-maker.json" });
 });
 ```
 
@@ -429,7 +426,7 @@ if ruleset.created_by == current_user.sub:
 - Audit all state transitions
 - Create shared roles + permissions in Auth0
 
-### card-fraud-rule-engine
+### card-fraud-rule-engine-auth/card-fraud-rule-engine-monitoring
 
 - **No human tokens allowed**
 - Accept only M2M tokens with execution scopes
@@ -512,10 +509,10 @@ Backend Service
 
 ### Roles to Delete
 
-| Old Role | Replacement |
-|----------|-------------|
-| `ADMIN` | `PLATFORM_ADMIN` |
-| `MAKER` | `RULE_MAKER` or `FRAUD_ANALYST` (domain-specific) |
+| Old Role  | Replacement                                            |
+| --------- | ------------------------------------------------------ |
+| `ADMIN`   | `PLATFORM_ADMIN`                                       |
+| `MAKER`   | `RULE_MAKER` or `FRAUD_ANALYST` (domain-specific)      |
 | `CHECKER` | `RULE_CHECKER` or `FRAUD_SUPERVISOR` (domain-specific) |
 
 ### Migration Steps
@@ -547,7 +544,7 @@ cd <path-to>/card-fraud-rule-management
 uv run auth0-bootstrap --yes --verbose
 
 # Rule Engine (scope-based only)
-cd <path-to>/card-fraud-rule-engine
+cd <path-to>/card-fraud-rule-engine-auth/card-fraud-rule-engine-monitoring
 uv run auth0-bootstrap --yes --verbose
 
 # Transaction Management (uses shared roles)
@@ -582,7 +579,7 @@ AUTH0_AUDIENCE: https://fraud-rule-management-api
 AUTH0_CLIENT_ID: <rule-mgmt-m2m-id>
 AUTH0_CLIENT_SECRET: <rule-mgmt-m2m-secret>
 
-# card-fraud-rule-engine
+# card-fraud-rule-engine-auth/card-fraud-rule-engine-monitoring
 AUTH0_AUDIENCE: https://fraud-rule-engine-api
 AUTH0_CLIENT_ID: <rule-engine-m2m-id>
 AUTH0_CLIENT_SECRET: <rule-engine-m2m-secret>
