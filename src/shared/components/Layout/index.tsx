@@ -33,6 +33,7 @@ import {
   UserOutlined,
   DownOutlined,
   CheckOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router";
 import { useGetIdentity, useLogout } from "@refinedev/core";
@@ -92,6 +93,7 @@ const ROLE_DISPLAY_LABELS: Record<string, string> = {
 
 const FRAUD_OPERATIONS_MENU = getMenuGroup("Fraud Operations", [
   getMenuItem("/worklist", <UnorderedListOutlined />, "Worklist"),
+  getMenuItem("/ops-analyst/recommendations", <ExperimentOutlined />, "AI Recommendations"),
   getMenuItem("/transactions", <DollarOutlined />, "All Transactions"),
   getMenuItem("/cases", <ContainerOutlined />, "Cases"),
   getMenuItem("/transaction-metrics", <BarChartOutlined />, "Metrics"),

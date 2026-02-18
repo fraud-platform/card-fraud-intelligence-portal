@@ -4,7 +4,7 @@
  * Refine auth provider for handling authentication, authorization,
  * and user session management.
  *
- * Current implementation: Simple localStorage-based auth for development.
+ * Current implementation: Session-backed development auth fallback.
  * Production: Auth0 SPA (Google via Auth0).
  */
 
@@ -20,6 +20,7 @@ import {
 } from "./auth0Client";
 import { isObjectWithPropertyOfType } from "../shared/utils/typeGuards";
 import { toError } from "../shared/utils/errors";
+import { ALLOWED_SYSTEM_ROLES, isSystemRole } from "../shared/constants/systemRoles";
 
 type LoginParams = {
   username?: string;
@@ -36,33 +37,23 @@ interface SecureSession {
   token: string;
   user: User;
   expiresAt: number; // Unix timestamp
-  checksum: string; // Simple integrity check
+  checksum: string; // Dev tamper-evident checksum (not production security)
 }
 
 const DEV_SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8 hours
 
 /**
- * Generate simple checksum for integrity verification
+ * Generate an integrity checksum for accidental corruption/tampering detection.
+ * This is intentionally lightweight because production auth uses Auth0 JWTs.
  */
 function generateChecksum(data: string): string {
-  let hash = 0;
+  let hash = 2166136261;
   for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash ^= data.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
   }
-  return hash.toString(16);
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
-
-// Allowed system roles (single source of truth)
-const ALLOWED_SYSTEM_ROLES: SystemRole[] = [
-  "PLATFORM_ADMIN",
-  "RULE_MAKER",
-  "RULE_CHECKER",
-  "RULE_VIEWER",
-  "FRAUD_ANALYST",
-  "FRAUD_SUPERVISOR",
-];
 
 /**
  * Active role helpers
@@ -70,7 +61,7 @@ const ALLOWED_SYSTEM_ROLES: SystemRole[] = [
 export function getActiveUserRole(): SystemRole | null {
   const active = sessionStorage.getItem("active_role");
   if (active == null || active === "") return null;
-  return ALLOWED_SYSTEM_ROLES.includes(active as SystemRole) ? (active as SystemRole) : null;
+  return isSystemRole(active) ? active : null;
 }
 
 export function setActiveUserRole(role?: SystemRole | null): void {
@@ -86,8 +77,15 @@ export function setActiveUserRole(role?: SystemRole | null): void {
 /**
  * Store session securely (development mode only)
  */
+function buildDevSessionToken(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `mock-token-${crypto.randomUUID()}`;
+  }
+  return `mock-token-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function storeDevSession(user: User): void {
-  const token = `mock-token-${user.user_id}`;
+  const token = buildDevSessionToken();
   const expiresAt = Date.now() + DEV_SESSION_DURATION_MS;
   const dataString = JSON.stringify({ token, user, expiresAt });
   const checksum = generateChecksum(dataString);
@@ -197,13 +195,13 @@ function buildUserFromAuth0Profile(
 }
 
 /**
- * Simple auth provider using sessionStorage for development
+ * Auth provider with Auth0 as primary auth and sessionStorage fallback for localhost development only.
  *
  * For development/demo purposes. Production uses Auth0.
  * Security improvements:
  * - sessionStorage instead of localStorage (cleared on tab close)
  * - Token expiration (8 hours)
- * - Integrity checks with checksums
+ * - Integrity checks with checksums (dev tamper detection only)
  */
 export const authProvider: AuthProvider = {
   /**
@@ -237,22 +235,12 @@ export const authProvider: AuthProvider = {
         };
       }
 
-      // Validate roles array
-      const allowed: SystemRole[] = [
-        "PLATFORM_ADMIN",
-        "RULE_MAKER",
-        "RULE_CHECKER",
-        "RULE_VIEWER",
-        "FRAUD_ANALYST",
-        "FRAUD_SUPERVISOR",
-      ];
-
       let normalizedRoles: SystemRole[];
 
       if (Array.isArray(rolesRaw) && rolesRaw.every((r) => typeof r === "string")) {
         normalizedRoles = rolesRaw
           .map((r) => r.toUpperCase())
-          .filter((r): r is SystemRole => allowed.includes(r as SystemRole));
+          .filter((r): r is SystemRole => isSystemRole(r));
       } else {
         // Default to RULE_MAKER for dev convenience when not provided
         normalizedRoles = ["RULE_MAKER"];

@@ -10,6 +10,7 @@ export { MerchantInfoPanel } from "./MerchantInfoPanel";
 export { DecisionDetailsPanel } from "./DecisionDetailsPanel";
 export { MatchedRulesPanel } from "./MatchedRulesPanel";
 export { TransactionSidebar } from "./TransactionSidebar";
+export { OpsAnalystInsightPanel } from "./OpsAnalystInsightPanel";
 
 export type { TransactionDetailsPanelProps } from "./TransactionDetailsPanel";
 export type { CardInfoPanelProps } from "./CardInfoPanel";

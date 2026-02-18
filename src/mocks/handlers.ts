@@ -13,10 +13,22 @@ import { AuditLogStore } from "./data/auditLogs";
 import { User, AuthResponse } from "../types/domain";
 import { ApprovalStatus, RuleStatus, RuleSetStatus, RulesetEnvironment } from "../types/enums";
 
-const shouldLogMockInitialization = process.env.MSW_LOG_INIT === "true";
-const configuredDelayMs = Number(
-  process.env.MSW_DELAY_MS ?? (process.env.NODE_ENV === "test" ? "0" : "300")
-);
+interface CustomProcessEnv {
+  [key: string]: string | undefined;
+}
+
+interface GlobalThisWithProcess {
+  process?: {
+    env?: CustomProcessEnv;
+  };
+}
+
+const globalThisWithProcess = globalThis as GlobalThisWithProcess;
+const processEnv: CustomProcessEnv =
+  typeof process === "undefined" ? (globalThisWithProcess.process?.env ?? {}) : (process.env ?? {});
+const nodeEnv = processEnv.NODE_ENV ?? "development";
+const shouldLogMockInitialization = processEnv.MSW_LOG_INIT === "true";
+const configuredDelayMs = Number(processEnv.MSW_DELAY_MS ?? (nodeEnv === "test" ? "0" : "300"));
 const mockDelayMs =
   Number.isFinite(configuredDelayMs) && configuredDelayMs >= 0 ? configuredDelayMs : 0;
 
@@ -1511,4 +1523,224 @@ export const handlers = [
       changes_description: body.changes_description ?? "Published new registry version",
     });
   }),
+
+  // ============================================================================
+  // Ops Analyst Agent Mocks
+  // ============================================================================
+
+  http.get("/api/v1/ops-agent/transactions/:transactionId/insights", async () => {
+    await addDelay();
+    return HttpResponse.json({
+      insights: [
+        {
+          insight_id: "ins-mock-001",
+          transaction_id: "txn-mock-001",
+          severity: "HIGH",
+          summary:
+            "Velocity spike detected: 5 transactions in 2 minutes from same card. Pattern matches known card testing behavior.",
+          insight_type: "pattern",
+          model_mode: "deterministic",
+          generated_at: new Date().toISOString(),
+          evidence: [
+            {
+              evidence_id: "ev-001",
+              evidence_kind: "velocity_pattern",
+              evidence_payload: {
+                window_minutes: 2,
+                transaction_count: 5,
+                amount_range: "$1.00–$5.00",
+                geo_match: true,
+              },
+              created_at: new Date().toISOString(),
+            },
+          ],
+        },
+      ],
+      next_cursor: null,
+    });
+  }),
+
+  http.post("/api/v1/ops-agent/investigations/run", async ({ request }) => {
+    await addDelay();
+    const body = (await request.json()) as { transaction_id: string; mode?: string };
+    return HttpResponse.json({
+      run_id: `run-mock-${Date.now()}`,
+      status: "SUCCESS",
+      mode: body.mode ?? "quick",
+      transaction_id: body.transaction_id,
+      model_mode: "deterministic",
+      duration_ms: 312,
+      insight: {
+        insight_id: "ins-mock-001",
+        severity: "HIGH",
+        summary: "Velocity spike detected. Pattern matches known card testing behavior.",
+        generated_at: new Date().toISOString(),
+      },
+      recommendations: [
+        {
+          recommendation_id: "rec-mock-001",
+          type: "review_priority",
+          status: "OPEN",
+          priority: 1,
+          payload: {
+            title: "Prioritize for manual review",
+            impact: "High velocity pattern detected",
+          },
+        },
+      ],
+    });
+  }),
+
+  http.get("/api/v1/ops-agent/worklist/recommendations", async ({ request }) => {
+    await addDelay();
+    const url = new URL(request.url);
+    const severity = url.searchParams.get("severity");
+    const recs = [
+      {
+        recommendation_id: "rec-mock-001",
+        insight_id: "ins-mock-001",
+        type: "review_priority",
+        status: "OPEN",
+        priority: 1,
+        payload: { title: "Prioritize for manual review", impact: "High velocity pattern" },
+        acknowledged_by: null,
+        acknowledged_at: null,
+        created_at: new Date().toISOString(),
+      },
+      {
+        recommendation_id: "rec-mock-002",
+        insight_id: "ins-mock-002",
+        type: "rule_candidate",
+        status: "ACKNOWLEDGED",
+        priority: 2,
+        payload: {
+          title: "Create velocity rule for $1–$5 range",
+          impact: "Block card testing pattern",
+        },
+        acknowledged_by: "analyst-001",
+        acknowledged_at: new Date(Date.now() - 3600_000).toISOString(),
+        created_at: new Date(Date.now() - 7200_000).toISOString(),
+      },
+    ].filter(
+      (r) =>
+        !severity || (r.payload.impact as string).toLowerCase().includes(severity.toLowerCase())
+    );
+
+    return HttpResponse.json({ recommendations: recs, next_cursor: null, total: recs.length });
+  }),
+
+  http.post(
+    "/api/v1/ops-agent/worklist/recommendations/:id/acknowledge",
+    async ({ params, request }) => {
+      await addDelay();
+      const body = (await request.json()) as { action: string; comment?: string };
+      return HttpResponse.json({
+        recommendation_id: params.id,
+        insight_id: "ins-mock-001",
+        type: "review_priority",
+        status: body.action,
+        priority: 1,
+        payload: { title: "Prioritize for manual review", impact: "High velocity pattern" },
+        acknowledged_by: "mock-analyst",
+        acknowledged_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      });
+    }
+  ),
+
+  // ============================================================================
+  // Ops Analyst Agent (Absolute URL for E2E)
+  // ============================================================================
+
+  http.post("http://localhost:8003/api/v1/ops-agent/investigations/run", async ({ request }) => {
+    await addDelay();
+    const body = (await request.json()) as { transaction_id: string; mode?: string };
+    return HttpResponse.json({
+      run_id: `run-mock-${Date.now()}`,
+      status: "SUCCESS",
+      mode: body.mode ?? "quick",
+      transaction_id: body.transaction_id,
+      model_mode: "deterministic",
+      duration_ms: 312,
+      insight: {
+        insight_id: "ins-mock-001",
+        severity: "HIGH",
+        summary: "Velocity spike detected. Pattern matches known card testing behavior.",
+        generated_at: new Date().toISOString(),
+      },
+      recommendations: [
+        {
+          recommendation_id: "rec-mock-001",
+          type: "review_priority",
+          status: "OPEN",
+          priority: 1,
+          payload: {
+            title: "Prioritize for manual review",
+            impact: "High velocity pattern detected",
+          },
+        },
+      ],
+    });
+  }),
+
+  http.get(
+    "http://localhost:8003/api/v1/ops-agent/worklist/recommendations",
+    async ({ request }) => {
+      await addDelay();
+      const url = new URL(request.url);
+      const severity = url.searchParams.get("severity");
+      const recs = [
+        {
+          recommendation_id: "rec-mock-001",
+          insight_id: "ins-mock-001",
+          type: "review_priority",
+          status: "OPEN",
+          priority: 1,
+          payload: { title: "Prioritize for manual review", impact: "High velocity pattern" },
+          acknowledged_by: null,
+          acknowledged_at: null,
+          created_at: new Date().toISOString(),
+        },
+        {
+          recommendation_id: "rec-mock-002",
+          insight_id: "ins-mock-002",
+          type: "rule_candidate",
+          status: "ACKNOWLEDGED",
+          priority: 2,
+          priority_score: 80,
+          payload: {
+            title: "Create velocity rule for $1–$5 range",
+            impact: "Block card testing pattern",
+          },
+          acknowledged_by: "analyst-001",
+          acknowledged_at: new Date(Date.now() - 3600_000).toISOString(),
+          created_at: new Date(Date.now() - 7200_000).toISOString(),
+        },
+      ].filter(
+        (r) =>
+          !severity || (r.payload.impact as string).toLowerCase().includes(severity.toLowerCase())
+      );
+
+      return HttpResponse.json({ recommendations: recs, next_cursor: null, total: recs.length });
+    }
+  ),
+
+  http.post(
+    "http://localhost:8003/api/v1/ops-agent/worklist/recommendations/:id/acknowledge",
+    async ({ params, request }) => {
+      await addDelay();
+      const body = (await request.json()) as { action: string; comment?: string };
+      return HttpResponse.json({
+        recommendation_id: params.id,
+        insight_id: "ins-mock-001",
+        type: "review_priority",
+        status: body.action,
+        priority: 1,
+        payload: { title: "Prioritize for manual review", impact: "High velocity pattern" },
+        acknowledged_by: "mock-analyst",
+        acknowledged_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      });
+    }
+  ),
 ];

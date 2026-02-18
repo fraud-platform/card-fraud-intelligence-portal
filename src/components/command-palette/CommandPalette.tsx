@@ -177,19 +177,24 @@ export function CommandPalette(): JSX.Element {
             </Command.Group>
           )}
         </Command.List>
-
         <div className="command-footer">
           <div className="command-footer-item">
-            <kbd>↑</kbd>
-            <kbd>↓</kbd>
+            <kbd>Cmd+K</kbd>
+            <span>/</span>
+            <kbd>Ctrl+K</kbd>
+            <span>to open</span>
+          </div>
+          <div className="command-footer-item">
+            <kbd>Up</kbd>
+            <kbd>Down</kbd>
             <span>to navigate</span>
           </div>
           <div className="command-footer-item">
-            <kbd>↵</kbd>
+            <kbd>Enter</kbd>
             <span>to select</span>
           </div>
           <div className="command-footer-item">
-            <kbd>esc</kbd>
+            <kbd>Esc</kbd>
             <span>to close</span>
           </div>
         </div>

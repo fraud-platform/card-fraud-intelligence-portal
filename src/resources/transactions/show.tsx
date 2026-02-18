@@ -11,6 +11,7 @@ import { Alert, Card, Collapse, Col, Row, Spin, Tabs } from "antd";
 import { Show } from "@refinedev/antd";
 import { useGetIdentity, useNotification } from "@refinedev/core";
 import { useParams } from "react-router";
+import { ExperimentOutlined } from "@ant-design/icons";
 import type { Transaction, MatchedRule, TransactionOverview } from "../../types/transaction";
 import type {
   TransactionStatus,
@@ -28,6 +29,7 @@ import {
   DecisionDetailsPanel,
   MatchedRulesPanel,
   TransactionSidebar,
+  OpsAnalystInsightPanel,
 } from "./components";
 import { useReview, useNotes } from "../../hooks";
 import { NotesPanel } from "../../components/notes";
@@ -238,6 +240,16 @@ const TransactionShowContent: FC<TransactionShowContentProps> = ({
                       loading={notesLoading}
                     />
                   ),
+                },
+                {
+                  key: "ops-analyst",
+                  label: (
+                    <span>
+                      <ExperimentOutlined />
+                      AI Insights
+                    </span>
+                  ),
+                  children: <OpsAnalystInsightPanel transactionId={transaction.transaction_id} />,
                 },
               ]}
             />

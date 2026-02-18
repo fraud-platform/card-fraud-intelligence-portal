@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./app/App";
 import { initSentry } from "./shared/utils/sentry";
+import { readBooleanEnv } from "./shared/utils/env";
 import "./index.css";
 
 // Initialize Sentry first (before any errors can occur)
@@ -14,9 +15,9 @@ import "./shared/compat/refineLinkCompat";
 
 async function enableMocking(): Promise<void> {
   // Enable MSW in DEV mode (unless disabled) or always in E2E mode
-  const disableMocks = import.meta.env.VITE_DISABLE_MOCKS === "true";
+  const disableMocks = readBooleanEnv(import.meta.env.VITE_DISABLE_MOCKS);
   const isDevMode = import.meta.env.DEV;
-  const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
+  const isE2EMode = readBooleanEnv(import.meta.env.VITE_E2E_MODE);
 
   console.warn("[main.tsx] Environment check:", {
     VITE_E2E_MODE: import.meta.env.VITE_E2E_MODE as string | undefined,

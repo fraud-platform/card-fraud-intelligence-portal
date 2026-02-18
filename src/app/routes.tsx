@@ -16,6 +16,7 @@ import {
   BarChartOutlined,
   UnorderedListOutlined,
   ContainerOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 
 /**
@@ -132,6 +133,15 @@ export const resources: ResourceProps[] = [
     meta: {
       label: "Metrics",
       icon: <BarChartOutlined />,
+      group: "Fraud Operations",
+    },
+  },
+  {
+    name: "ops-analyst-recommendations",
+    list: "/ops-analyst/recommendations",
+    meta: {
+      label: "AI Recommendations",
+      icon: <ExperimentOutlined />,
       group: "Fraud Operations",
     },
   },

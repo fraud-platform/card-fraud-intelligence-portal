@@ -32,7 +32,7 @@ export default defineConfig({
   // Test execution settings
   fullyParallel: true,
   forbidOnly: !!process.env.CI, // Fail CI if test.only is committed
-  retries: process.env.CI ? 2 : 0, // Retry on CI to handle flakiness
+  retries: process.env.CI ? 2 : 1, // Keep one local retry to surface flaky tests early
 
   // Parallel workers - use more workers in CI for parallel execution
   workers: process.env.CI ? 4 : 2,

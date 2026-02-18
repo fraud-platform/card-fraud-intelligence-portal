@@ -16,21 +16,23 @@ import {
 } from "@auth0/auth0-spa-js";
 
 import type { SystemRole } from "../types/domain";
+import { readBooleanEnv, readStringEnv } from "../shared/utils/env";
+import { isSystemRole } from "../shared/constants/systemRoles";
 
 type Auth0AppState = {
   returnTo?: string;
 };
 
-const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN as string | undefined;
-const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID as string | undefined;
-const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE as string | undefined;
-const FORCE_DEV_AUTH = import.meta.env.VITE_FORCE_DEV_AUTH === "true";
+const AUTH0_DOMAIN = readStringEnv(import.meta.env.VITE_AUTH0_DOMAIN);
+const AUTH0_CLIENT_ID = readStringEnv(import.meta.env.VITE_AUTH0_CLIENT_ID);
+const AUTH0_AUDIENCE = readStringEnv(import.meta.env.VITE_AUTH0_AUDIENCE);
+const FORCE_DEV_AUTH = readBooleanEnv(import.meta.env.VITE_FORCE_DEV_AUTH);
 const AUTH0_ROLE_CLAIM =
   (import.meta.env.VITE_AUTH0_ROLE_CLAIM as string | undefined) ??
   "https://fraud-governance-api/roles";
 
 // Debug logging for Auth0 (only in development with explicit flag enabled)
-const DEBUG_AUTH0 = import.meta.env.DEV && import.meta.env.VITE_DEBUG_AUTH0 === "true";
+const DEBUG_AUTH0 = import.meta.env.DEV && readBooleanEnv(import.meta.env.VITE_DEBUG_AUTH0);
 
 function debugLog(...args: unknown[]): void {
   if (DEBUG_AUTH0) {
@@ -45,7 +47,7 @@ export function isAuth0Enabled(): boolean {
     return __test_forceAuth0Enabled;
   }
   // Disable Auth0 in E2E mode to use dev mode sessionStorage auth
-  const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
+  const isE2EMode = readBooleanEnv(import.meta.env.VITE_E2E_MODE);
   debugLog("VITE_E2E_MODE:", import.meta.env.VITE_E2E_MODE);
   debugLog("isE2EMode:", isE2EMode);
   debugLog("VITE_FORCE_DEV_AUTH:", import.meta.env.VITE_FORCE_DEV_AUTH);
@@ -309,17 +311,7 @@ export async function getRoles(): Promise<string[]> {
 export async function getAppRoles(): Promise<SystemRole[]> {
   const roles = await getRoles();
   const normalized = new Set(roles.map((r) => r.toUpperCase()));
-
-  const allowed: SystemRole[] = [
-    "PLATFORM_ADMIN",
-    "RULE_MAKER",
-    "RULE_CHECKER",
-    "RULE_VIEWER",
-    "FRAUD_ANALYST",
-    "FRAUD_SUPERVISOR",
-  ];
-
-  return Array.from(normalized).filter((r): r is SystemRole => allowed.includes(r as SystemRole));
+  return Array.from(normalized).filter((r): r is SystemRole => isSystemRole(r));
 }
 
 // Test helpers (only used by unit tests)

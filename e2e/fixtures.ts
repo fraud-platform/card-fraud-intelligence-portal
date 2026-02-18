@@ -28,13 +28,14 @@ type AuthFixtures = {
   authenticatedPage: Page;
   makerPage: Page;
   checkerPage: Page;
+  analystPage: Page;
   context: BrowserContext;
 };
 
 // Helper to create authenticated page with role
 async function makeAuthenticatedPage(
   context: BrowserContext,
-  role: "maker" | "checker" | "admin"
+  role: "maker" | "checker" | "admin" | "analyst"
 ): Promise<Page> {
   return createAuthenticatedPage(context, role);
 }
@@ -65,6 +66,13 @@ export const test = base.extend<AuthFixtures>({
   // Page authenticated as CHECKER
   checkerPage: async ({ context }, use) => {
     const page = await makeAuthenticatedPage(context, "checker");
+    await use(page);
+    await page.close();
+  },
+
+  // Page authenticated as ANALYST
+  analystPage: async ({ context }, use) => {
+    const page = await makeAuthenticatedPage(context, "analyst");
     await use(page);
     await page.close();
   },

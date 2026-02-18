@@ -2,7 +2,7 @@
 
 Repository code map for `card-fraud-intelligence-portal`.
 
-Last verified: February 13, 2026.
+Last verified: February 18, 2026.
 
 ## Repository Tree
 
@@ -80,6 +80,7 @@ src/
 | Worklist     | `src/resources/worklist/`     |
 | Transactions | `src/resources/transactions/` |
 | Cases        | `src/resources/cases/`        |
+| Ops Analyst  | `src/resources/opsAnalyst/`   |
 
 ## API Routing Map
 
@@ -87,6 +88,7 @@ src/
 | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
 | `/api/v1/rule-fields*`, `/api/v1/rules*`, `/api/v1/rulesets*`, `/api/v1/approvals*`, `/api/v1/audit-log*`, `/api/v1/field-registry*` | Rule management (`http://localhost:8000`)        |
 | `/api/v1/transactions*`, `/api/v1/worklist*`, `/api/v1/cases*`, `/api/v1/metrics*`                                                   | Transaction management (`http://localhost:8002`) |
+| `/api/v1/ops-agent*`                                                                                                                 | Ops Analyst Agent (`http://localhost:8003`)      |
 
 Routing behavior is implemented in `src/api/httpClient.ts`.
 
@@ -95,6 +97,7 @@ Routing behavior is implemented in `src/api/httpClient.ts`.
 - UI: `http://localhost:5173`
 - Rule management API: `http://localhost:8000`
 - Transaction management API: `http://localhost:8002`
+- Ops Analyst Agent API: `http://localhost:8003`
 - Preferred health endpoint path: `/api/v1/health`
 
 ## Common Commands

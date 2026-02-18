@@ -17,3 +17,6 @@ export * from "./notes";
 export * from "./case";
 export * from "./worklist";
 export * from "./bulk";
+
+// Ops Analyst Agent types
+export * from "./opsAnalyst";

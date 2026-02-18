@@ -2,7 +2,7 @@
 
 This is the canonical documentation set for the UI repository.
 
-Last verified: February 13, 2026.
+Last verified: February 18, 2026.
 
 ## Documentation Model
 

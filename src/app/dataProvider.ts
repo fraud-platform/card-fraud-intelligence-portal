@@ -28,20 +28,22 @@ import type {
 import { httpClient } from "../api/httpClient";
 import { buildQueryString } from "../shared/utils/url";
 import { ResourceSchemas } from "../api/schemas";
+import { readBooleanEnv, readStringEnv } from "../shared/utils/env";
+import { API_VERSION_PREFIX } from "../shared/config/api";
 
 // ============================================================
 // API Configuration
 // ============================================================
 
-const API_BASE = "/api/v1";
+const API_BASE = API_VERSION_PREFIX;
 
 function normalizeApiUrl(raw: string): string {
   const trimmed = raw.replace(/\/$/, "");
   return trimmed.endsWith(API_BASE) ? trimmed : `${trimmed}${API_BASE}`;
 }
 
-const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
-const defaultApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const isE2EMode = readBooleanEnv(import.meta.env.VITE_E2E_MODE);
+const defaultApiUrl = readStringEnv(import.meta.env.VITE_API_URL);
 const API_URL =
   isE2EMode || typeof defaultApiUrl !== "string" || defaultApiUrl === ""
     ? API_BASE

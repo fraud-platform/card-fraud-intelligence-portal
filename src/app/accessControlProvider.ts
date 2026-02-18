@@ -47,11 +47,11 @@ const SYSTEM_ROLE_PERMISSIONS: Record<
     cannot: ["create", "edit", "delete", "submit", "approve", "reject"],
   },
   FRAUD_ANALYST: {
-    can: ["list", "show", "comment", "flag", "recommend"],
+    can: ["list", "show", "comment", "flag", "recommend", "run", "ack", "draft"],
     cannot: [],
   },
   FRAUD_SUPERVISOR: {
-    can: ["list", "show", "approve", "block", "override"],
+    can: ["list", "show", "approve", "block", "override", "run", "ack", "draft", "admin"],
     cannot: [],
   },
 };
@@ -59,6 +59,7 @@ const SYSTEM_ROLE_PERMISSIONS: Record<
 /**
  * Access control provider implementation
  */
+// eslint-disable-next-line complexity -- Mapping resources/actions to API scopes is inherently branchy
 function getRequiredScope(res?: string, act?: string): string | null {
   if (res == null || res === "" || act == null || act === "") {
     return null;
@@ -86,6 +87,22 @@ function getRequiredScope(res?: string, act?: string): string | null {
     }
     if (["list", "show", "submit"].includes(a)) {
       return "read:rules";
+    }
+  }
+
+  const OPS_RES = new Set(["ops-analyst-recommendations", "ops-analyst"]);
+  if (OPS_RES.has(r)) {
+    if (["list", "show"].includes(a)) {
+      return "ops_agent:read";
+    }
+    if (["run"].includes(a)) {
+      return "ops_agent:run";
+    }
+    if (["ack"].includes(a)) {
+      return "ops_agent:ack";
+    }
+    if (["draft"].includes(a)) {
+      return "ops_agent:draft";
     }
   }
 

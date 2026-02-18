@@ -35,9 +35,9 @@ test.describe("Login Form", () => {
     await page.goto("/login");
   });
 
-  test("should show Google Workspace login action", async ({ page }) => {
+  test("should show primary login action", async ({ page }) => {
     await expect(
-      page.getByRole("button", { name: /continue with google workspace/i })
+      page.getByRole("button", { name: /sign in|continue with google workspace/i })
     ).toBeVisible();
   });
 });
@@ -50,7 +50,7 @@ test.describe("Visual and Layout", () => {
   test("should have proper page structure", async ({ page }) => {
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /continue with google workspace/i })
+      page.getByRole("button", { name: /sign in|continue with google workspace/i })
     ).toBeVisible();
   });
 
@@ -62,7 +62,7 @@ test.describe("Visual and Layout", () => {
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
 
     await expect(
-      page.getByRole("button", { name: /continue with google workspace/i })
+      page.getByRole("button", { name: /sign in|continue with google workspace/i })
     ).toBeVisible();
   });
 
@@ -74,7 +74,7 @@ test.describe("Visual and Layout", () => {
     await expect(page.getByRole("heading", { name: /fraud intelligence portal/i })).toBeVisible();
 
     await expect(
-      page.getByRole("button", { name: /continue with google workspace/i })
+      page.getByRole("button", { name: /sign in|continue with google workspace/i })
     ).toBeVisible();
   });
 });
@@ -93,7 +93,7 @@ test.describe("Accessibility", () => {
   test("should have keyboard accessible login button", async ({ page }) => {
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
-    const button = page.getByRole("button", { name: /continue with google workspace/i });
+    const button = page.getByRole("button", { name: /sign in|continue with google workspace/i });
     await expect(button).toBeVisible();
   });
 });

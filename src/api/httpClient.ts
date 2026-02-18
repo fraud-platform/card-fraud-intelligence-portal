@@ -13,21 +13,27 @@ import axios, {
 } from "axios";
 import { ApiError } from "./types";
 import { getAccessToken, isAuth0Enabled } from "../app/auth0Client";
+import { readBooleanEnv, readStringEnv } from "../shared/utils/env";
+import { API_VERSION_PREFIX } from "../shared/config/api";
 
 /**
  * Create axios instance with base configuration
  */
-const isE2EMode = import.meta.env.VITE_E2E_MODE === "true";
-const envApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+
+const isE2EMode = readBooleanEnv(import.meta.env.VITE_E2E_MODE);
+const envApiUrl = readStringEnv(import.meta.env.VITE_API_URL);
 const resolvedBaseUrl = isE2EMode || envApiUrl == null || envApiUrl === "" ? "" : envApiUrl;
 const txApiEnv =
-  (import.meta.env.VITE_API_URL_TRANSACTION_MGMT as string | undefined) ??
-  (import.meta.env.VITE_TRANSACTION_API_URL as string | undefined);
+  readStringEnv(import.meta.env.VITE_API_URL_TRANSACTION_MGMT) ??
+  readStringEnv(import.meta.env.VITE_TRANSACTION_API_URL);
+const opsAgentApiEnv =
+  readStringEnv(import.meta.env.VITE_API_URL_OPS_ANALYST) ??
+  readStringEnv(import.meta.env.VITE_OPS_ANALYST_URL);
 
 function normalizeTxApiBase(raw: string): string {
   let base = raw.trim().replace(/\/$/, "");
-  if (base.endsWith("/api/v1")) {
-    base = base.slice(0, -"/api/v1".length);
+  if (base.endsWith(API_VERSION_PREFIX)) {
+    base = base.slice(0, -API_VERSION_PREFIX.length);
   }
   return base;
 }
@@ -45,13 +51,28 @@ function resolveTransactionApiRoot(): string | null {
 }
 
 function shouldRouteToTransactionApi(url: string): boolean {
+  const versionPrefix = API_VERSION_PREFIX;
   return (
-    url.startsWith("/api/v1/transactions") ||
-    url.startsWith("/api/v1/worklist") ||
-    url.startsWith("/api/v1/cases") ||
-    url === "/api/v1/metrics" ||
-    url.startsWith("/api/v1/metrics/")
+    url.startsWith(`${versionPrefix}/transactions`) ||
+    url.startsWith(`${versionPrefix}/worklist`) ||
+    url.startsWith(`${versionPrefix}/cases`) ||
+    url === `${versionPrefix}/metrics` ||
+    url.startsWith(`${versionPrefix}/metrics/`)
   );
+}
+
+function resolveOpsAnalystApiRoot(): string | null {
+  if (typeof opsAgentApiEnv === "string" && opsAgentApiEnv !== "") {
+    return opsAgentApiEnv.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+    return "http://localhost:8003";
+  }
+  return null;
+}
+
+function shouldRouteToOpsAnalystApi(url: string): boolean {
+  return url.startsWith(`${API_VERSION_PREFIX}/ops-agent/`);
 }
 
 export const httpClient = axios.create({
@@ -109,6 +130,12 @@ httpClient.interceptors.request.use(
         config.baseURL = undefined;
         config.url = `${txApiRoot}${config.url}`;
       }
+
+      const opsApiRoot = resolveOpsAnalystApiRoot();
+      if (opsApiRoot != null && shouldRouteToOpsAnalystApi(config.url)) {
+        config.baseURL = undefined;
+        config.url = `${opsApiRoot}${config.url}`;
+      }
     }
 
     if (isAuth0Enabled()) {
@@ -132,7 +159,10 @@ httpClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    // Transform axios error to ApiError
+    // Transform axios error to ApiError.
+    // Common status mappings:
+    // 401 -> authentication required (session/token expired)
+    // 403 -> authorization denied (insufficient role/scope)
     const apiError: ApiError = {
       message: "An unexpected error occurred",
       status: error.response?.status ?? 500,

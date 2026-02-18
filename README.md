@@ -36,6 +36,7 @@ Shared local ports:
 - UI: `5173`
 - Rule Management API: `8000`
 - Transaction Management API: `8002`
+- Ops Analyst Agent API: `8003`
 
 ## Common Commands
 
@@ -66,6 +67,11 @@ pnpm build
 
 - Standalone UI mode: run this repository directly (`pnpm dev`) with Doppler-managed secrets.
 - Platform mode: run via `card-fraud-platform` compose stack and point UI/API to shared local ports.
+
+Ops Analyst UI entry points:
+
+- Recommendations queue: `/ops-analyst/recommendations`
+- Transaction insights tab: `/transactions/show/:id` -> `AI Insights`
 
 Preferred health endpoint shape: `/api/v1/health`.
 

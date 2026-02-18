@@ -133,7 +133,7 @@ export async function getAuth0TokensViaPassword(config: Auth0TestConfig): Promis
 export async function injectAuth0Tokens(
   page: Page,
   tokens: Auth0Tokens | null,
-  role: "maker" | "checker" | "admin" = "maker"
+  role: "maker" | "checker" | "admin" | "analyst" = "maker"
 ): Promise<void> {
   // Attach verbose browser logs only when debugging auth/E2E issues.
   if (E2E_DEBUG_AUTH) {
@@ -206,6 +206,7 @@ export async function injectAuth0Tokens(
           maker: ["RULE_MAKER"],
           checker: ["RULE_CHECKER"],
           admin: ["PLATFORM_ADMIN"],
+          analyst: ["FRAUD_ANALYST"],
         };
 
         const roles = roleMap[userRole] ?? ["RULE_MAKER"];
@@ -224,14 +225,13 @@ export async function injectAuth0Tokens(
         // Generate checksum - must match authProvider.ts exactly
         const dataString = JSON.stringify({ token, user, expiresAt });
 
-        // Copy exact algorithm from authProvider.ts
-        let hash = 0;
+        // Copy exact algorithm from authProvider.ts (FNV-1a style)
+        let hash = 2166136261;
         for (let i = 0; i < dataString.length; i++) {
-          const char = dataString.charCodeAt(i);
-          hash = (hash << 5) - hash + char;
-          hash = hash & hash; // Convert to 32-bit integer
+          hash ^= dataString.charCodeAt(i);
+          hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
         }
-        const checksum = hash.toString(16);
+        const checksum = (hash >>> 0).toString(16).padStart(8, "0");
 
         const session = {
           token,
@@ -265,7 +265,7 @@ export async function injectAuth0Tokens(
   }
 
   // Navigate to the app - init script will run before page loads
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded", timeout: 30000 });
 
   // Wait for page to load with injected session
   await page.waitForLoadState("domcontentloaded");
@@ -320,7 +320,7 @@ export async function injectAuth0Tokens(
  */
 export async function authenticateWithAuth0(
   page: Page,
-  role: "maker" | "checker" | "admin" = "maker"
+  role: "maker" | "checker" | "admin" | "analyst" = "maker"
 ): Promise<void> {
   let tokens: Auth0Tokens | null = null;
 
@@ -340,14 +340,82 @@ export async function authenticateWithAuth0(
 
   await injectAuth0Tokens(page, tokens, role);
 
-  // Verify authentication was successful by checking for the user role in the header
-  // Prefer the visible role label element (friendly UI text) but fall back to the legacy system-role codes
-  await page.waitForSelector(".role-label", { timeout: 10000 }).catch(async () => {
-    await page.waitForSelector(
-      "text=/RULE_MAKER|RULE_CHECKER|PLATFORM_ADMIN|FRAUD_ANALYST|FRAUD_SUPERVISOR|RULE_VIEWER/i",
-      { timeout: 10000 }
+  await ensureAuthenticatedPage(page, tokens, role);
+}
+
+async function waitForRoleIndicator(page: Page, timeoutMs = 10000): Promise<boolean> {
+  try {
+    await page.waitForSelector(".role-label", { timeout: timeoutMs });
+    return true;
+  } catch {
+    try {
+      await page.waitForSelector(
+        "text=/RULE_MAKER|RULE_CHECKER|PLATFORM_ADMIN|FRAUD_ANALYST|FRAUD_SUPERVISOR|RULE_VIEWER/i",
+        { timeout: timeoutMs }
+      );
+      return true;
+    } catch {
+      authDebugWarn("[e2e-auth] role indicator not found within timeout; continuing");
+      return false;
+    }
+  }
+}
+
+async function waitForAuthenticatedShell(page: Page, timeoutMs = 12000): Promise<boolean> {
+  try {
+    await page.waitForFunction(
+      () => {
+        if (window.location.pathname.startsWith("/login")) {
+          return false;
+        }
+
+        const hasAppRoot = document.querySelector(".app-root") != null;
+        const hasHeader = document.querySelector(".app-header") != null;
+        const hasSession = sessionStorage.getItem("auth_session") != null;
+        return hasAppRoot || hasHeader || hasSession;
+      },
+      { timeout: timeoutMs }
     );
-  });
+    return true;
+  } catch {
+    authDebugWarn("[e2e-auth] authenticated shell not detected within timeout; continuing");
+    return false;
+  }
+}
+
+function isOnLoginRoute(page: Page): boolean {
+  try {
+    const currentUrl = new URL(page.url());
+    return currentUrl.pathname.startsWith("/login");
+  } catch {
+    return page.url().includes("/login");
+  }
+}
+
+async function ensureAuthenticatedPage(
+  page: Page,
+  tokens: Auth0Tokens | null,
+  role: "maker" | "checker" | "admin" | "analyst",
+  attempts = 2
+): Promise<void> {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    await waitForAuthenticatedShell(page, 12000);
+    await waitForRoleIndicator(page, 3000);
+
+    if (!isOnLoginRoute(page)) {
+      return;
+    }
+
+    authDebugWarn(
+      `[e2e-auth] still on /login after auth injection (attempt ${attempt}/${attempts})`
+    );
+
+    if (attempt < attempts) {
+      await injectAuth0Tokens(page, tokens, role);
+    }
+  }
+
+  throw new Error(`[e2e-auth] authentication did not complete; current URL: ${page.url()}`);
 }
 
 /**
@@ -364,7 +432,7 @@ export async function authenticateWithAuth0(
  */
 export async function createAuthenticatedPage(
   context: BrowserContext,
-  role: "maker" | "checker" | "admin" = "maker"
+  role: "maker" | "checker" | "admin" | "analyst" = "maker"
 ): Promise<Page> {
   const page = await context.newPage();
 
@@ -383,19 +451,7 @@ export async function createAuthenticatedPage(
 
   await injectAuth0Tokens(page, tokens, role);
 
-  // Wait for the app to mount (app-root) — sometimes hydration is delayed in CI/local runs
-  await page.waitForSelector(".app-root", { timeout: 15000 }).catch(() => {
-    authDebugWarn("[e2e-debug] .app-root not found within 15s � continuing to role checks");
-  });
-
-  // Prefer the visible role label element (friendly UI text) but fall back to legacy system-role codes
-  // Give extra time for UI to render
-  await page.waitForSelector(".role-label", { timeout: 10000 }).catch(async () => {
-    await page.waitForSelector(
-      "text=/RULE_MAKER|RULE_CHECKER|PLATFORM_ADMIN|FRAUD_ANALYST|FRAUD_SUPERVISOR|RULE_VIEWER/i",
-      { timeout: 10000 }
-    );
-  });
+  await ensureAuthenticatedPage(page, tokens, role);
 
   // If role still not found, dump a short body snapshot to help debugging
   const maybeRole = await page.evaluate(

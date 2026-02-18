@@ -31,6 +31,7 @@ import { dataProvider } from "./dataProvider";
 import { accessControlProvider } from "./accessControlProvider";
 import { resources } from "./routes";
 import { usePermissions } from "../hooks/usePermissions";
+import { APP_PROJECT_ID, APP_TITLE } from "../shared/config/app";
 
 // Theme System
 import { ThemeProvider, useTheme } from "../theme";
@@ -78,6 +79,9 @@ import { TransactionMetrics } from "../resources/transactions/metrics";
 import CasesList from "../resources/cases/list";
 import CasesShow from "../resources/cases/show";
 import CasesCreate from "../resources/cases/create";
+
+// Ops Analyst
+import OpsAnalystRecommendationList from "../resources/opsAnalyst/list";
 
 function DefaultRoute(): JSX.Element {
   const { capabilities, isLoading } = usePermissions();
@@ -142,7 +146,7 @@ function AppContent(): JSX.Element {
           options={{
             syncWithLocation: true,
             warnWhenUnsavedChanges: true,
-            projectId: "fraud-intelligence-portal",
+            projectId: APP_PROJECT_ID,
             disableTelemetry: true,
           }}
         >
@@ -224,6 +228,11 @@ function AppContent(): JSX.Element {
                 <Route index element={<TransactionMetrics />} />
               </Route>
 
+              {/* Ops Analyst Routes */}
+              <Route path="/ops-analyst">
+                <Route path="recommendations" element={<OpsAnalystRecommendationList />} />
+              </Route>
+
               {/* Catch all */}
               <Route path="*" element={<ErrorComponent />} />
             </Route>
@@ -243,16 +252,15 @@ function AppContent(): JSX.Element {
           <UnsavedChangesNotifier />
           <DocumentTitleHandler
             handler={({ resource, action, params }) => {
-              const appTitle = "Fraud Intelligence Portal";
-              if (resource == null) return appTitle;
+              if (resource == null) return APP_TITLE;
               const resourceName = resource.meta?.label ?? resource.name ?? "";
-              if (action === "list") return `${resourceName} | ${appTitle}`;
+              if (action === "list") return `${resourceName} | ${APP_TITLE}`;
               if (action === "show" && params?.id != null)
-                return `${resourceName} #${params.id} | ${appTitle}`;
+                return `${resourceName} #${params.id} | ${APP_TITLE}`;
               if (action === "edit" && params?.id != null)
-                return `Edit ${resourceName} | ${appTitle}`;
-              if (action === "create") return `Create ${resourceName} | ${appTitle}`;
-              return appTitle;
+                return `Edit ${resourceName} | ${APP_TITLE}`;
+              if (action === "create") return `Create ${resourceName} | ${APP_TITLE}`;
+              return APP_TITLE;
             }}
           />
 

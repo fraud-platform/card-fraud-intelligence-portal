@@ -4,11 +4,12 @@
  * Centralized endpoint definitions for the backend API.
  * All API routes are defined here to maintain consistency.
  */
+import { API_VERSION_PREFIX } from "../shared/config/api";
 
 /**
  * Base API version prefix
  */
-const API_VERSION = "/api/v1";
+const API_VERSION = API_VERSION_PREFIX;
 
 /**
  * Rule Fields endpoints
@@ -230,6 +231,29 @@ export const FIELD_REGISTRY = {
     `${API_VERSION}/field-registry/versions/${registryVersion}/fields`,
   NEXT_FIELD_ID: `${API_VERSION}/field-registry/next-field-id`,
   PUBLISH: `${API_VERSION}/field-registry/publish`,
+} as const;
+
+/**
+ * Ops Analyst Agent endpoints (port 8003, /api/v1/ops-agent prefix)
+ */
+export const OPS_ANALYST = {
+  INVESTIGATIONS: {
+    RUN: `${API_VERSION}/ops-agent/investigations/run`,
+    GET: (runId: string) => `${API_VERSION}/ops-agent/investigations/${runId}`,
+  },
+  INSIGHTS: {
+    LIST: (transactionId: string) =>
+      `${API_VERSION}/ops-agent/transactions/${transactionId}/insights`,
+  },
+  RECOMMENDATIONS: {
+    LIST: `${API_VERSION}/ops-agent/worklist/recommendations`,
+    ACKNOWLEDGE: (id: string) =>
+      `${API_VERSION}/ops-agent/worklist/recommendations/${id}/acknowledge`,
+  },
+  RULE_DRAFTS: {
+    CREATE: `${API_VERSION}/ops-agent/rule-drafts`,
+    EXPORT: (draftId: string) => `${API_VERSION}/ops-agent/rule-drafts/${draftId}/export`,
+  },
 } as const;
 
 /**

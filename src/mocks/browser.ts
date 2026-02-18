@@ -6,6 +6,7 @@
 
 import { setupWorker } from "msw/browser";
 import { handlers } from "./handlers";
+import { readBooleanEnv } from "../shared/utils/env";
 
 interface CustomProcessEnv {
   [key: string]: string | undefined;
@@ -44,11 +45,10 @@ export async function startMockServiceWorker(): Promise<void> {
   const metaDev = metaEnvRecord?.DEV;
   const metaE2E = metaEnvRecord?.VITE_E2E_MODE;
   const isTestEnv = nodeEnv === "test";
-  const isDevMode =
-    nodeEnv === "development" || ((metaDev === true || metaDev === "true") && !isTestEnv);
+  const isDevMode = nodeEnv === "development" || (readBooleanEnv(metaDev) && !isTestEnv);
   const processE2E = (processEnv as CustomProcessEnv).VITE_E2E_MODE;
   const e2eMode = processE2E ?? (isTestEnv ? undefined : metaE2E);
-  const isE2EMode = e2eMode === "true" || e2eMode === true;
+  const isE2EMode = readBooleanEnv(e2eMode);
 
   if (isDevMode || isE2EMode) {
     console.log("[MSW] Starting with", handlers.length, "handlers");

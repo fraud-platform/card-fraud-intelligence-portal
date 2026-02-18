@@ -32,6 +32,7 @@ If a tool-specific file exists, it must point here instead of duplicating guidan
 - API contracts/endpoints: `src/api/endpoints.ts`, `src/api/types.ts`, `src/api/httpClient.ts`
 - Domain types: `src/types/`
 - Resource screens: `src/resources/`
+- Ops Analyst screens: `src/resources/opsAnalyst/`, `src/resources/transactions/components/OpsAnalystInsightPanel.tsx`
 - Shared UI and utilities: `src/shared/`, `src/components/`, `src/hooks/`
 - Unit test setup: `src/test/`
 - E2E tests: `e2e/`
