@@ -19,6 +19,7 @@ import {
 import type { RiskLevel } from "../../types/review";
 import { useCasesList } from "../../hooks";
 import { RiskLevelBadge } from "../../components/review";
+import { buildShowTotal } from "../../shared/utils/filters";
 import "../../shared/styles/widths.css";
 import "./list.css";
 
@@ -234,7 +235,7 @@ export default function CasesList(): ReactElement {
             total,
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total) => `${total} cases`,
+            showTotal: buildShowTotal("case"),
           }}
         />
       </Card>

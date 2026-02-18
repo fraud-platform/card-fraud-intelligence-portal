@@ -102,3 +102,47 @@
 .user-info-email {
   font-size: 11px;
 }
+
+/* Network status indicator styles */
+.network-status-badge {
+  margin-right: 8px;
+}
+.network-status-online,
+.network-status-offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 12px;
+}
+.network-status-offline {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Route loading skeleton styles */
+.route-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: 24px;
+}
+.route-loading-skeleton {
+  width: 100%;
+  max-width: 800px;
+}
+.default-route-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}

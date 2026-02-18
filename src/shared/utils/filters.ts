@@ -139,12 +139,29 @@ export function mergePagination(tablePagination?: PaginationProps | false): Pagi
     showSizeChanger: true,
     pageSizeOptions: ["20", "50", "100"],
     defaultPageSize: 20,
-    showTotal: (total: number, range: [number, number]) =>
-      `${range[0]}-${range[1]} of ${total} items`,
+    showTotal: buildShowTotal("item"),
   };
 
   return {
     ...compactPagination,
     ...(tablePagination === false ? {} : (tablePagination ?? {})),
+  };
+}
+
+/**
+ * Builds AntD pagination showTotal function with ranged display.
+ *
+ * @example
+ * showTotal: buildShowTotal("transaction")
+ * // => "1-20 of 145 transactions"
+ */
+export function buildShowTotal(
+  singularLabel: string,
+  pluralLabel?: string
+): NonNullable<PaginationProps["showTotal"]> {
+  return (total: number, range: [number, number]) => {
+    const normalizedPlural = pluralLabel ?? `${singularLabel}s`;
+    const label = total === 1 ? singularLabel : normalizedPlural;
+    return `${range[0]}-${range[1]} of ${total} ${label}`;
   };
 }

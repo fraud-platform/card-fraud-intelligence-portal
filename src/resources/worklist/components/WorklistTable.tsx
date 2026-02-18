@@ -13,6 +13,7 @@ import type { TransactionStatus, RiskLevel } from "../../../types/review";
 import { StatusBadge, RiskLevelBadge, PriorityBadge } from "../../../components/review";
 import { getDecisionColor } from "../../../theme/tokens";
 import { formatCurrency, formatTimeInQueue } from "../../../shared/utils/format";
+import { buildShowTotal } from "../../../shared/utils/filters";
 
 const { Text } = Typography;
 
@@ -175,7 +176,7 @@ export const WorklistTable: FC<WorklistTableProps> = ({
         total,
         pageSize: 20,
         showSizeChanger: true,
-        showTotal: (totalItems: number) => `${totalItems} items`,
+        showTotal: buildShowTotal("item"),
       }}
     />
   );

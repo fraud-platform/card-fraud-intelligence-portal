@@ -200,7 +200,7 @@ describe("CasesList", () => {
     it("displays correct pagination text", async () => {
       render(<CasesList />);
       await waitFor(() => {
-        expect(screen.getByText("3 cases")).toBeInTheDocument();
+        expect(screen.getByText("1-3 of 3 cases")).toBeInTheDocument();
       });
     });
   });

@@ -30,3 +30,7 @@ export { useCasesList, useCase, useCaseActivity, useCreateCase } from "./useCase
 
 // Bulk operations hooks
 export { useBulkOperations } from "./useBulkOperations";
+
+// Network status hooks
+export { useNetworkStatus } from "./useNetworkStatus";
+export type { NetworkStatus } from "./useNetworkStatus";

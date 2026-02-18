@@ -37,6 +37,7 @@ import {
   getEvaluationTypeColor,
 } from "../../theme/tokens";
 import { formatCurrency } from "../../shared/utils/format";
+import { buildShowTotal, mergePagination } from "../../shared/utils/filters";
 import { buildTransactionFilters } from "./filters";
 
 const { RangePicker } = DatePicker;
@@ -222,6 +223,15 @@ export const TransactionList: FC = () => {
     []
   );
 
+  const pagination = useMemo(
+    () => ({
+      ...mergePagination(tableProps.pagination),
+      showQuickJumper: true,
+      showTotal: buildShowTotal("transaction"),
+    }),
+    [tableProps.pagination]
+  );
+
   return (
     <List>
       <Card size="small" variant="outlined">
@@ -296,12 +306,7 @@ export const TransactionList: FC = () => {
           scroll={{ x: 1200, y: 600 }}
           virtual={true}
           rowKey="transaction_id"
-          pagination={{
-            pageSize: 20,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `Total ${total} transactions`,
-          }}
+          pagination={pagination}
         />
       </Card>
     </List>

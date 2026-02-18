@@ -29,9 +29,6 @@ export default defineConfig({
     include: ["@refinedev/core", "@refinedev/react-router", "@refinedev/antd"],
   },
   test: {
-    deps: {
-      inline: [/^@refinedev\//],
-    },
     // Enable global test APIs (describe, it, expect, etc.)
     globals: true,
 
@@ -53,9 +50,6 @@ export default defineConfig({
 
     // Setup files to run before each test file (order matters - early setup first)
     setupFiles: ["./src/test/early-setup.ts", "./src/test/setup.ts"],
-
-    // Optimize VM threads - reuse contexts for faster runs
-    experimentalVmThreads: false,
 
     // Coverage configuration
     coverage: {
@@ -129,7 +123,6 @@ export default defineConfig({
     // Worker count - tuned for UI-heavy suites to avoid host contention.
     // Override with VITEST_MAX_WORKERS for local profiling.
     maxWorkers,
-    minWorkers: 1,
 
     // File parallelism - can disable for complex test suites with heavy setup
     fileParallelism,

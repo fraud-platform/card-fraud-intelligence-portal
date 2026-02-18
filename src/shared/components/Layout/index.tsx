@@ -40,6 +40,7 @@ import { useGetIdentity, useLogout } from "@refinedev/core";
 import { usePermissions } from "../../../hooks/usePermissions";
 import { getActiveUserRole, setActiveUserRole } from "../../../app/authProvider";
 import type { SystemRole } from "../../../types/domain";
+import { NetworkStatusIndicator } from "../NetworkStatusIndicator";
 import "./Layout.css";
 
 const { Sider, Header, Content } = Layout;
@@ -173,6 +174,10 @@ function HeaderBar({
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       />
+
+      <div style={{ flex: 1 }} />
+
+      <NetworkStatusIndicator />
 
       <Dropdown menu={{ items: userMenuItems }} trigger={["click"]} placement="bottomRight">
         <Button type="text" loading={isLoggingOut} className="user-button">
