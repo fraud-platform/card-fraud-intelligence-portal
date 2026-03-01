@@ -1539,7 +1539,7 @@ export const handlers = [
           summary:
             "Velocity spike detected: 5 transactions in 2 minutes from same card. Pattern matches known card testing behavior.",
           insight_type: "pattern",
-          model_mode: "deterministic",
+          model_mode: "agentic",
           generated_at: new Date().toISOString(),
           evidence: [
             {
@@ -1568,7 +1568,7 @@ export const handlers = [
       status: "SUCCESS",
       mode: body.mode ?? "quick",
       transaction_id: body.transaction_id,
-      model_mode: "deterministic",
+      model_mode: "agentic",
       duration_ms: 312,
       insight: {
         insight_id: "ins-mock-001",
@@ -1660,7 +1660,7 @@ export const handlers = [
       status: "SUCCESS",
       mode: body.mode ?? "quick",
       transaction_id: body.transaction_id,
-      model_mode: "deterministic",
+      model_mode: "agentic",
       duration_ms: 312,
       insight: {
         insight_id: "ins-mock-001",

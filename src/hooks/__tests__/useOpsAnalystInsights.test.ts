@@ -19,7 +19,7 @@ describe("useOpsAnalystInsights", () => {
     severity: "HIGH",
     summary: "Suspicious activity detected",
     insight_type: "FRAUD",
-    model_mode: "hybrid",
+    model_mode: "agentic",
     generated_at: "2024-01-01T12:00:00Z",
     evidence: [],
   };

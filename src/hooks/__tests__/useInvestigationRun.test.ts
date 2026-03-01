@@ -18,7 +18,7 @@ describe("useInvestigationRun", () => {
     status: "SUCCESS",
     mode: "quick",
     transaction_id: "txn-1",
-    model_mode: "hybrid",
+    model_mode: "agentic",
     duration_ms: 100,
     insight: {
       insight_id: "insight-1",

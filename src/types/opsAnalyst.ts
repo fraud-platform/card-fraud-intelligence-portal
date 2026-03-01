@@ -6,7 +6,7 @@
 export type OpsAgentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type OpsAgentRunMode = "quick" | "deep";
 export type OpsAgentRunStatus = "SUCCESS" | "FAILED" | "PARTIAL";
-export type OpsAgentModelMode = "deterministic" | "hybrid";
+export type OpsAgentModelMode = "agentic" | "hybrid" | "deterministic";
 export type OpsAgentRecommendationStatus = "OPEN" | "ACKNOWLEDGED" | "REJECTED" | "EXPORTED";
 export type OpsAgentRecommendationType = "review_priority" | "case_action" | "rule_candidate";
 

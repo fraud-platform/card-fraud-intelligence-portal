@@ -40,7 +40,7 @@ describe("OpsAnalystInsightPanel", () => {
     severity: "CRITICAL",
     summary: "High risk transaction detected",
     insight_type: "FRAUD",
-    model_mode: "hybrid",
+    model_mode: "agentic",
     generated_at: new Date().toISOString(),
     evidence: [],
   };
@@ -69,6 +69,7 @@ describe("OpsAnalystInsightPanel", () => {
     render(<OpsAnalystInsightPanel transactionId="txn-1" />);
 
     expect(screen.getByText("High risk transaction detected")).toBeInTheDocument();
+    expect(screen.getByText("Agentic")).toBeInTheDocument();
   });
 
   it("should trigger investigation run", async () => {

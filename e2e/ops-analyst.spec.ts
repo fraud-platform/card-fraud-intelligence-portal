@@ -17,7 +17,13 @@ test.describe("Ops Analyst - Recommendation Queue", () => {
 
     // Interact with filter (mock response is usually simulated via MSW in real app, but here we just check UI presence)
     const filter = analystPage.locator(".ant-select").first();
+    await expect(filter).toBeVisible();
     await filter.click();
-    await expect(analystPage.getByText("HIGH")).toBeVisible();
+
+    const dropdown = analystPage.locator(".ant-select-dropdown").last();
+    await expect(dropdown).toBeVisible();
+    const options = dropdown.locator(".ant-select-item-option-content");
+    await expect(options.first()).toBeVisible();
+    await expect(dropdown).toContainText("HIGH");
   });
 });

@@ -25,6 +25,23 @@ const SEVERITY_COLOR: Record<OpsAgentSeverity, string> = {
   CRITICAL: "purple",
 };
 
+const MODEL_MODE_META = {
+  agentic: { label: "Agentic", color: "geekblue" },
+  hybrid: { label: "AI-assisted", color: "blue" },
+  deterministic: { label: "Deterministic", color: "default" },
+} as const;
+
+const DEFAULT_MODEL_MODE_META = MODEL_MODE_META.agentic;
+
+function resolveModelModeMeta(
+  mode: unknown
+): (typeof MODEL_MODE_META)[keyof typeof MODEL_MODE_META] {
+  if (typeof mode !== "string") {
+    return DEFAULT_MODEL_MODE_META;
+  }
+  return MODEL_MODE_META[mode as keyof typeof MODEL_MODE_META] ?? DEFAULT_MODEL_MODE_META;
+}
+
 interface Props {
   transactionId: string;
 }
@@ -41,6 +58,10 @@ export const OpsAnalystInsightPanel: FC<Props> = ({ transactionId }) => {
   };
 
   const latestInsight = insights[0] ?? lastResult?.insight ?? null;
+  const latestModelModeMeta =
+    latestInsight != null && "model_mode" in latestInsight && latestInsight.model_mode != null
+      ? resolveModelModeMeta(latestInsight.model_mode)
+      : null;
 
   const renderEvidence = (evidence: EvidenceItem[] | undefined): ReactNode => {
     if (evidence == null || evidence.length === 0) {
@@ -103,10 +124,8 @@ export const OpsAnalystInsightPanel: FC<Props> = ({ transactionId }) => {
               <Text type="secondary" style={{ fontSize: 12 }}>
                 {new Date(latestInsight.generated_at).toLocaleString()}
               </Text>
-              {"model_mode" in latestInsight && latestInsight.model_mode != null && (
-                <Tag color={latestInsight.model_mode === "hybrid" ? "blue" : "default"}>
-                  {latestInsight.model_mode === "hybrid" ? "AI-assisted" : "Deterministic"}
-                </Tag>
+              {latestModelModeMeta != null && (
+                <Tag color={latestModelModeMeta.color}>{latestModelModeMeta.label}</Tag>
               )}
             </Space>
           }

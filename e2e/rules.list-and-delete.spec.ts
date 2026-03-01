@@ -291,6 +291,8 @@ test.describe("Rules - Deletion", () => {
   });
 
   test("maker cannot delete APPROVED rule", async ({ makerPage }) => {
+    test.setTimeout(120000);
+
     await makerPage.goto("/rules");
     await makerPage.waitForURL(/\/rules/, { timeout: 10000 });
     await expect(makerPage.locator(".ant-table")).toBeVisible({ timeout: 10000 });

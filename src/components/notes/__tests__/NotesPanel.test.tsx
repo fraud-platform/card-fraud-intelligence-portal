@@ -524,7 +524,7 @@ describe("NotesPanel", () => {
 
     it("disables buttons during delete operation", async () => {
       const user = userEvent.setup();
-      let resolveDelete: (value: void) => void;
+      let resolveDelete: ((value: void) => void) | undefined;
       const mockDeleteFn = vi.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolveDelete = resolve;
@@ -542,23 +542,26 @@ describe("NotesPanel", () => {
       );
 
       // Trigger delete
-      const deleteButtons = await screen.findAllByRole("button", { name: /delete/i });
-      await user.click(deleteButtons[0]);
-      const confirmButton = await screen.findByRole("button", { name: "Delete" });
+      const targetCard = screen.getByText("This is the first note").closest(".note-card-root");
+      expect(targetCard).not.toBeNull();
+      const cardButtons = within(targetCard as HTMLElement).getAllByRole("button");
+      const deleteButton = cardButtons[cardButtons.length - 1];
+      await user.click(deleteButton);
+
+      await screen.findByText("Delete this note?");
+      const confirmButton = await screen.findByRole("button", { name: /^Delete$/ });
       await user.click(confirmButton);
 
       // Buttons should be disabled while loading
-      // Re-query to find the delete button by accessible name (case-insensitive)
-      const deleteButtonsAfter = await screen.findAllByRole("button", { name: /delete/i });
-      const deleteButton = deleteButtonsAfter[0];
       expect(deleteButton).toBeDisabled();
 
       // Resolve the promise
-      resolveDelete!();
+      expect(resolveDelete).toBeDefined();
+      resolveDelete?.();
 
       // Wait for the button to be re-enabled with a more specific assertion
       await waitFor(() => {
-        expect(deleteButton).not.toBeDisabled();
+        expect(deleteButton).toBeEnabled();
       });
     });
   });
@@ -604,9 +607,14 @@ describe("NotesPanel", () => {
       );
 
       // Trigger delete
-      const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
-      await user.click(deleteButtons[0]);
-      const confirmButton = await screen.findByRole("button", { name: "Delete" });
+      const targetCard = screen.getByText("This is the first note").closest(".note-card-root");
+      expect(targetCard).not.toBeNull();
+      const cardButtons = within(targetCard as HTMLElement).getAllByRole("button");
+      const deleteButton = cardButtons[cardButtons.length - 1];
+      await user.click(deleteButton);
+
+      await screen.findByText("Delete this note?");
+      const confirmButton = await screen.findByRole("button", { name: /^Delete$/ });
       await user.click(confirmButton);
 
       await waitFor(() => {

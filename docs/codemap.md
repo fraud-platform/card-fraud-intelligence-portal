@@ -2,7 +2,7 @@
 
 Repository code map for `card-fraud-intelligence-portal`.
 
-Last verified: February 18, 2026.
+Last verified: March 1, 2026.
 
 ## Repository Tree
 
@@ -113,6 +113,17 @@ pnpm build
 ```
 
 Unit-test runtime tuning and sharding flags are documented in `docs/04-testing/README.md` (`VITEST_*`, `MSW_*`).
+
+## E2E Spec Map
+
+| Area              | Primary E2E spec                    |
+| ----------------- | ----------------------------------- |
+| Ops Analyst Queue | `e2e/ops-analyst.spec.ts`           |
+| Rule Fields       | `e2e/rule-fields.crud.spec.ts`      |
+| Rules CRUD/Delete | `e2e/rules.list-and-delete.spec.ts` |
+| Approval Workflow | `e2e/approval-workflow.spec.ts`     |
+| Transactions      | `e2e/transactions.spec.ts`          |
+| Worklist          | `e2e/worklist.spec.ts`              |
 
 ## Detailed Docs Index
 
