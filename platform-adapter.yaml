@@ -1,0 +1,36 @@
+service: intelligence-portal
+version: "1.0"
+entrypoints:
+  service:
+    status:
+      command: [node, scripts/platform-adapter.mjs, service, status]
+      destructive: false
+      timeout_seconds: 60
+      mode: [suite]
+      description: Check portal health endpoint.
+    health:
+      command: [node, scripts/platform-adapter.mjs, service, health]
+      destructive: false
+      timeout_seconds: 60
+      mode: [suite]
+      description: Check portal readiness endpoint.
+    logs:
+      command: [node, scripts/platform-adapter.mjs, service, logs]
+      destructive: false
+      timeout_seconds: 60
+      mode: [suite]
+      description: Return portal logs guidance.
+  auth:
+    verify:
+      command: [node, scripts/platform-adapter.mjs, auth, verify]
+      destructive: false
+      timeout_seconds: 60
+      mode: [suite]
+      description: Validate Auth0 config key presence for portal runtime.
+  verify:
+    preflight:
+      command: [node, scripts/platform-adapter.mjs, verify, preflight]
+      destructive: false
+      timeout_seconds: 60
+      mode: [suite]
+      description: Validate required portal scripts for suite mode.

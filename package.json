@@ -27,6 +27,7 @@
     "lint:fast": "eslint src --ext ts,tsx --max-warnings 9999 --cache --cache-location=node_modules/.eslintcache",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "type-check": "tsc --noEmit",
+    "platform-adapter": "node scripts/platform-adapter.mjs",
     "csp:serve": "node scripts/csp-dev-server.js",
     "csp:test": "node scripts/check-csp-report-only.js",
     "csp:enforce": "node scripts/check-csp-enforce.js",
